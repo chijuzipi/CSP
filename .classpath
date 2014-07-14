@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="/Users/Yu/Documents/Java_workspace/CSP/jsoup-1.7.3.jar"/>
+	<classpathentry kind="lib" path="/Users/Yu/Documents/Java_workspace/CSP/HtmlUnit Jars/commons-codec-1.9.jar"/>
+	<classpathentry kind="lib" path="/Users/Yu/Documents/Java_workspace/CSP/HtmlUnit Jars/commons-collections-3.2.1.jar"/>
+	<classpathentry kind="lib" path="/Users/Yu/Documents/Java_workspace/CSP/HtmlUnit Jars/commons-io-2.4.jar"/>
+	<classpathentry kind="lib" path="/Users/Yu/Documents/Java_workspace/CSP/HtmlUnit Jars/commons-lang3-3.3.2.jar"/>
+	<classpathentry kind="lib" path="/Users/Yu/Documents/Java_workspace/CSP/HtmlUnit Jars/commons-logging-1.1.3.jar"/>
+	<classpathentry kind="lib" path="/Users/Yu/Documents/Java_workspace/CSP/HtmlUnit Jars/cssparser-0.9.14.jar"/>
+	<classpathentry kind="lib" path="/Users/Yu/Documents/Java_workspace/CSP/HtmlUnit Jars/htmlunit-2.15.jar"/>
+	<classpathentry kind="lib" path="/Users/Yu/Documents/Java_workspace/CSP/HtmlUnit Jars/htmlunit-core-js-2.15.jar"/>
+	<classpathentry kind="lib" path="/Users/Yu/Documents/Java_workspace/CSP/HtmlUnit Jars/httpclient-4.3.3.jar"/>
+	<classpathentry kind="lib" path="/Users/Yu/Documents/Java_workspace/CSP/HtmlUnit Jars/httpcore-4.3.2.jar"/>
+	<classpathentry kind="lib" path="/Users/Yu/Documents/Java_workspace/CSP/HtmlUnit Jars/httpmime-4.3.3.jar"/>
+	<classpathentry kind="lib" path="/Users/Yu/Documents/Java_workspace/CSP/HtmlUnit Jars/jetty-http-8.1.15.v20140411.jar"/>
+	<classpathentry kind="lib" path="/Users/Yu/Documents/Java_workspace/CSP/HtmlUnit Jars/jetty-io-8.1.15.v20140411.jar"/>
+	<classpathentry kind="lib" path="/Users/Yu/Documents/Java_workspace/CSP/HtmlUnit Jars/jetty-util-8.1.15.v20140411.jar"/>
+	<classpathentry kind="lib" path="/Users/Yu/Documents/Java_workspace/CSP/HtmlUnit Jars/jetty-websocket-8.1.15.v20140411.jar"/>
+	<classpathentry kind="lib" path="/Users/Yu/Documents/Java_workspace/CSP/HtmlUnit Jars/nekohtml-1.9.21.jar"/>
+	<classpathentry kind="lib" path="/Users/Yu/Documents/Java_workspace/CSP/HtmlUnit Jars/sac-1.3.jar"/>
+	<classpathentry kind="lib" path="/Users/Yu/Documents/Java_workspace/CSP/HtmlUnit Jars/serializer-2.7.1.jar"/>
+	<classpathentry kind="lib" path="/Users/Yu/Documents/Java_workspace/CSP/HtmlUnit Jars/xalan-2.7.1.jar"/>
+	<classpathentry kind="lib" path="/Users/Yu/Documents/Java_workspace/CSP/HtmlUnit Jars/xercesImpl-2.11.0.jar"/>
+	<classpathentry kind="lib" path="/Users/Yu/Documents/Java_workspace/CSP/HtmlUnit Jars/xml-apis-1.4.01.jar"/>
+	<classpathentry kind="lib" path="/Users/Yu/Documents/CSP/499-450CSPproject/demo/inline.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
