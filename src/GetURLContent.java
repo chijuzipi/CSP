@@ -8,89 +8,158 @@ import org.jsoup.select.Elements;
 
 public class GetURLContent 
 {
-	public int count = 0;
-	ArrayList<String> policys = new ArrayList();
-    
-	public void inline2external(String html, String webpage) throws IOException
-	{
-		// make js and html files
-		File html_file = new File("new_" + webpage.trim() + ".html");
-		BufferedWriter html_out = new BufferedWriter(new FileWriter(html_file));
-		if (!html_file.exists()) 
-		{
-			html_file.createNewFile();
-		}
-		
-		// Jsoup parse link
-		//Document doc = Jsoup.parse(html);
-		
-		// for test local html file
-		//File input = new File("./bing_files/bing.html");
-		File input = new File("Twitter.html");
-		
-		Document doc = Jsoup.parse(input, "UTF-8");
+	//for creating id for extracted elements
+	private int scriptCount;
+	private int cssCount;
+	private File inputFile;
+	private File output_html;
+	private File output_script;
+	private File output_css;
+	//private File output_policy;
+	private BufferedWriter html_out; 
+	private BufferedWriter js_out; 
+	private BufferedWriter css_out; 
+	//private BufferedWriter policy_out; 
+	private Document doc;
+	private String newFileName;
 
-		System.out.println("src scripts: ");
-		// locate external js file
+	public GetURLContent(String input) throws IOException{
+		//policy remain un-implemented
+		//ArrayList<String> policys = new ArrayList();
+
+		//used to generate id for inline script elements
+		scriptCount = 0;
+		cssCount = 0;
+
+		//prepare IO
+		inputFile = new File(input);
+	
+		String[] pathList = input.trim().split("/");
+		String fileName = pathList[pathList.length -1];
+		System.out.println(fileName);
+
+		String[] fileNameList = fileName.split("\\.");
+		System.out.println(fileNameList.length);
+		
+		newFileName = fileNameList[fileNameList.length - 2];
+		System.out.println(newFileName);
+		output_html = new File(newFileName + ".html"); 
+		output_script = new File(newFileName + ".js"); 
+		output_css = new File(newFileName + ".css"); 
+		html_out = new BufferedWriter(new FileWriter(output_html));
+		js_out = new BufferedWriter(new FileWriter(output_script));
+		css_out = new BufferedWriter(new FileWriter(output_css));
+
+		//initialize Jsoup document
+		doc = Jsoup.parse(inputFile, "UTF-8");
+		
+	}
+	
+	public void processHTML() throws IOException {
+		//select external script and styles, using them to generate csp header
 		Elements external_scripts = doc.select("script[src]");
-		for (Element x : external_scripts)
-		{
-			// extract js path
-			System.out.println(x.attr("src"));
+		Elements external_styles = doc.select("link[href$=.css]");
+		String cspHeader = generateCSPHeader(external_scripts, external_styles);
+		// this header is at the HTTP request, so no output file, just print out.
+		System.out.println(cspHeader);
+		
+		//select and write internal script to .js file and remove it from HTML
+		Elements internal_scripts = doc.select("script").not("script[src]");
+		for (Element x : internal_scripts){
+			js_out.write(x.data().toString());
+			//delete the element
+			x.remove();
 		}
 		
-		// locate external css file
-		Elements external_css = doc.select("link[href]");
-		for (Element y : external_css)
-		{
-			System.out.println(y.attr("href"));
-		}
-		
-		String cspHeader = generateCSPHeader(external_scripts, webpage, external_css);
-		
-		// extract internal script code
-		Elements scripts = doc.select("script").not("script[src]");
-		for (Element y : scripts)
-		{
-			System.out.println(y);
-			// delete <script>...</script> in html
-			y.remove();
-		}
-		
-		// extract internal style code
-		Elements styles = doc.select("style").not("style[src]");
-		for (Element y : styles){
-			System.out.println(y);
-			y.remove();
-		}
-		
-		scriptsToJs(webpage, scripts);
-		stylesToJs(webpage, styles);
-		
+		//select and write inline script to file and remove it from HTML
+		Elements inline_scripts;
 		String[] script_directive = {
     			// Mouse Events
-    			"onclick", "ondblclick", "onmousedown", "onmousemove", "onmouseover", "onmouseout", "onmouseup", 
+    		"onclick", "ondblclick", "onmousedown", "onmousemove", "onmouseover", "onmouseout", "onmouseup", 
     			// Keyboard Events
-    			"onkeydown", "onkeypress", "onkeyup", 
+    		"onkeydown", "onkeypress", "onkeyup", 
     			// Frame/Object Events
-    			"onabort", "onerror", "onload", "onresize", "onscroll", "onunload",
+    		"onabort", "onerror", "onload", "onresize", "onscroll", "onunload",
     			// Form Events
-    			"onblur", "onchange", "onfocus", "onreset", "onselect", "onsubmit"};
+    		"onblur", "onchange", "onfocus", "onreset", "onselect", "onsubmit"};
 		
-		for (int i = 0; i < script_directive.length; i++)
-		{
-			Elements script_src = doc.select("[" + script_directive[i] +"]");
-			inline2Js2(script_src, webpage, script_directive[i]);
+		//write the document ready part
+		js_out.write("\r\n");
+		js_out.write("document.addEventListener('DOMContentReady', function () {");
+		js_out.write("\r\n");
+		for (int i = 0; i < script_directive.length; i++){
+			inline_scripts = doc.select("[" + script_directive[i] +"]");
+			inlineToJs(inline_scripts, script_directive[i]);
+			}	
+		js_out.write("});");
+
+		//select and write internal style to .css file and remove it from HTML
+		Elements internal_styles = doc.select("style");
+		for (Element y : internal_styles){
+			css_out.write(y.data().toString());
+			//delete the element
+			y.remove();
+		}	
+
+		//select and write inline style to .css file and remove it from HTML
+		Elements inline_styles = doc.select("[style]");
+		for(Element z : inline_styles){
+			String cssId;
+			if (z.id() == ""){
+				z.attr("id", String.valueOf(cssCount));
+				cssId = String.valueOf(cssCount);
+				cssCount++;
+			}
+			else{
+				cssId = z.id();
+			}
+			String cssContent = z.attr("style");
+			z.removeAttr("style");
+			css_out.write("\r\n");
+			css_out.write("#"+cssId+ " {" + cssContent + "}");
+			css_out.write("\r\n");
+
 		}
-		addToPolicy(webpage);	
-		addExternalJs(doc, webpage);
 		
+		addExternalJsToHtml();
+		addExternalCssToHtml();
+
 		// write html into a new file
 		html_out.write(doc.toString());
+		js_out.close();
+		css_out.close();
 		html_out.close();
 	}
 	
-	public String generateCSPHeader(Elements ele, String web, Elements ele_css)
+	//write inline script to external .js file
+	public void inlineToJs(Elements ele, String directive) throws IOException
+	{
+		// delete front two bits
+		String js_directive = directive.substring(2);
+		for (Element x : ele)
+		{
+			// add id check, if exists then use it. otherwise create a new one
+			String ele_id = x.id();
+			if (ele_id == "")
+			{
+				//convert to String
+				x.attr("id", String.valueOf(scriptCount));
+				ele_id = String.valueOf(scriptCount);
+				scriptCount++;
+			}
+			
+			String function_content = x.attr(directive);
+			
+			// delete onclick attribute
+			x.removeAttr(directive);
+			js_out.write("\r\n");
+			js_out.write("var element_" + ele_id + " = document.getElementById(\"" + ele_id + "\");");
+			js_out.write("\r\n");
+			js_out.write("element_" + ele_id + ".addEventListener(\""+ js_directive +"\", function(){" + function_content + "}, false);" );
+		}
+	}
+	
+	public String generateCSPHeader(Elements ele, Elements ele_css)
 	{
 		String CSPHeader = "Content-Security-Policy: default-src 'self'; script-src 'slef' ";
 		for (Element y : ele)
@@ -98,7 +167,7 @@ public class GetURLContent
 			//System.out.println(y);
 			CSPHeader = CSPHeader + y.attr("src") + " ";
 		}
-		CSPHeader = CSPHeader + web + "_external.js ";
+		CSPHeader = CSPHeader + newFileName + ".js ";
 		// delete the last space 
 		CSPHeader = CSPHeader.substring(0, CSPHeader.length() - 1);
 		CSPHeader = CSPHeader + "; ";
@@ -109,11 +178,24 @@ public class GetURLContent
 		}
 		CSPHeader = CSPHeader.substring(0, CSPHeader.length() - 1);
 		CSPHeader = CSPHeader + "; ";
-		System.out.println("CSP header: \n" + CSPHeader);
 		return CSPHeader;
 	}
 	
-	public void addToPolicy(String webpage) throws IOException
+	public void addExternalJsToHtml()
+	{
+		doc.head().appendElement("script").attr("src", newFileName + ".js");
+	}
+	
+	public void addExternalCssToHtml()
+	{
+		doc.head().appendElement("link").attr("rel", "stylesheet").attr("type", "text/css").attr("href", newFileName + ".css");
+	}
+
+	/**
+	 * **************************************************************
+	 * the policy is not implemented yet
+	 * **************************************************************
+	public void generatePolicy(String webpage) throws IOException
 	{
 		File policy_file = new File(webpage.trim() + "_policy.txt");
 		// add true to enable append content to the file
@@ -129,114 +211,13 @@ public class GetURLContent
 		}
 		policy_out.close();
 	}
-	
-	public void inline2Js2(Elements ele, String webpage, String directive) throws IOException
-	{
-		File js_file = new File(webpage.trim() + "_external.js");
-		// add true to enable append content to the file
-		BufferedWriter js_out = new BufferedWriter(new FileWriter(js_file, true));
-		if (!js_file.exists()) 
-		{
-			js_file.createNewFile();
-		}
-		
-		// delete front two bits
-		String js_directive = directive.substring(2);
-		//System.out.println(js_directive);
-		for (Element x : ele)
-		{
-			// add id check, if exists then use it. otherwise create a new one
-			String ele_id = "";
-			ele_id = x.id();
-			if (ele_id == "")
-			{
-				x.attr("id", String.valueOf(count));
-				ele_id = String.valueOf(count);
-			}
-			//System.out.println(ele_id);
-			String function_content = x.attr(directive);
-			policys.add(function_content);
-			//System.out.println(function_content);
-			//inline2Js(webpage, count, function_content);
-			// delete onclick attribute
-			x.removeAttr(directive);
-			js_out.write("\r\n");
-			js_out.write("var element_" + ele_id + " = document.getElementById(\"" + ele_id + "\");");
-			js_out.write("\r\n");
-			js_out.write("element_" + ele_id + ".addEventListener(\""+ js_directive +"\", function(){" + function_content + "}, false);" );
-			count++;
-		}
-		js_out.close();
-	}
-	
-	
-	public void addExternalJs(Document docs, String webpage)
-	{
-		docs.body().appendElement("script");
-		System.out.println(docs.body().children().first().lastElementSibling());
-		Element new_script = docs.body().children().first().lastElementSibling();
-		new_script.attr("src", webpage + "_external.js");
-		System.out.println(docs);
-	}
-	
-	// script tagged with <script> ... </script>
-	// directly write it into the js file
-	public void scriptsToJs(String webpage, Elements script) throws IOException
-	{
-		File js_file = new File(webpage.trim() + "_external.js");
-		// add true to enable append content to the file
-		BufferedWriter js_out = new BufferedWriter(new FileWriter(js_file, false));
-		if (!js_file.exists()) 
-		{
-			js_file.createNewFile();
-		}
-		for (Element x : script)
-		{
-			// get the content within <script>...</script>
-			//System.out.println(x.data());
-			js_out.write(x.data().toString());
-			//js_out.write(func.toString());
-		}
-		js_out.close();
-	}
-
-	public void stylesToJs(String webpage, Elements style) throws IOException
-	{
-		File js_file = new File(webpage.trim() + "_external.css");
-		// add true to enable append content to the file
-		BufferedWriter js_out = new BufferedWriter(new FileWriter(js_file, false));
-		if (!js_file.exists()) 
-		{
-			js_file.createNewFile();
-		}
-		for (Element x : style)
-		{
-			js_out.write(x.data().toString());
-		}
-		js_out.close();
-	}
-	
-	// inline script, need to add function to wrap
-	public void inline2Js(String webpage, int count, String f_content) throws IOException
-	{
-		File js_file = new File(webpage.trim() + "_external.js");
-		// add true to enable append content to the file
-		BufferedWriter js_out = new BufferedWriter(new FileWriter(js_file, true));
-		if (!js_file.exists()) 
-		{
-			js_file.createNewFile();
-		}
-		js_out.write("\r\n");
-		js_out.write("var element_" + count + " = document.getElementById(" + count + ");");
-		js_out.write("\r\n");
-		js_out.write("element_" + count + ".addEventListener(\"click\", function(){" + f_content + "}, false);" );
-		js_out.close();
-	}
+	**/
 	
 	  //static String webadd;
 	public static void main(String[] args) throws FileNotFoundException, IOException 
 	{
-		GetURLContent getURL = new GetURLContent();
-		getURL.inline2external("", "Twitter");
+		String htmlFile = "demo/index.html";
+		GetURLContent getURL = new GetURLContent(htmlFile);
+		getURL.processHTML();
 	}
 }
