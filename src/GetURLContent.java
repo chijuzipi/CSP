@@ -216,7 +216,7 @@ public class GetURLContent
 	  //static String webadd;
 	public static void main(String[] args) throws FileNotFoundException, IOException 
 	{
-		String htmlFile = "demo/index.html";
+		String htmlFile = "demo/Twitter.html";
 		GetURLContent getURL = new GetURLContent(htmlFile);
 		getURL.processHTML();
 	}
