@@ -1,2 +1,1 @@
-CSP
-===
+* Content Security Policy *
