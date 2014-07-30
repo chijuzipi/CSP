@@ -5,7 +5,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-public class GetURLContent 
+public class URLContentAnalyzer
 {
 	//for creating id for extracted elements
 	private int scriptCount;
@@ -19,7 +19,7 @@ public class GetURLContent
 	private Document doc;
 	private String newFileName;
 
-	public GetURLContent(String input) throws IOException {
+	public URLContentAnalyzer(String input) throws IOException {
 		//policy remain un-implemented
 		//ArrayList<String> policys = new ArrayList();
 
@@ -68,7 +68,7 @@ public class GetURLContent
 		//select and write internal script to .js file and remove it from HTML
 		Elements internal_scripts = doc.select("script").not("script[src]");
 		for (Element x : internal_scripts){
-			js_out.write(x.data().toString());
+			js_out.write(x.data());
 			//delete the element
 			x.remove();
 		}
@@ -98,7 +98,7 @@ public class GetURLContent
 		//select and write internal style to .css file and remove it from HTML
 		Elements internal_styles = doc.select("style");
 		for (Element y : internal_styles){
-			css_out.write(y.data().toString());
+			css_out.write(y.data());
 			//delete the element
 			y.remove();
 		}	
@@ -185,7 +185,7 @@ public class GetURLContent
 	
 	public void addExternalJsToHtml()
 	{
-		doc.head().appendElement("script").attr("src", newFileName + ".js");
+        doc.head().appendElement("script").attr("src", newFileName + ".js");
 	}
 	
 	public void addExternalCssToHtml()
