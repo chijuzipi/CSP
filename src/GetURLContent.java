@@ -1,5 +1,4 @@
 import java.io.*;
-import java.util.ArrayList;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -11,10 +10,7 @@ public class GetURLContent
 	//for creating id for extracted elements
 	private int scriptCount;
 	private int cssCount;
-	private File inputFile;
-	private File output_html;
-	private File output_script;
-	private File output_css;
+
 	//private File output_policy;
 	private BufferedWriter html_out; 
 	private BufferedWriter js_out; 
@@ -23,7 +19,7 @@ public class GetURLContent
 	private Document doc;
 	private String newFileName;
 
-	public GetURLContent(String input) throws IOException{
+	public GetURLContent(String input) throws IOException {
 		//policy remain un-implemented
 		//ArrayList<String> policys = new ArrayList();
 
@@ -32,9 +28,10 @@ public class GetURLContent
 		cssCount = 0;
 
 		//prepare IO
-		inputFile = new File(input);
-	
-		String[] pathList = input.trim().split("/");
+		File inputFile;
+        inputFile = new File(input);
+
+        String[] pathList = input.trim().split("/");
 		String fileName = pathList[pathList.length -1];
 		System.out.println(fileName);
 
@@ -43,12 +40,17 @@ public class GetURLContent
 		
 		newFileName = fileNameList[fileNameList.length - 2];
 		System.out.println(newFileName);
-		output_html = new File(newFileName + ".html"); 
-		output_script = new File(newFileName + ".js"); 
-		output_css = new File(newFileName + ".css"); 
-		html_out = new BufferedWriter(new FileWriter(output_html));
-		js_out = new BufferedWriter(new FileWriter(output_script));
-		css_out = new BufferedWriter(new FileWriter(output_css));
+
+        File outputHtml;
+        outputHtml = new File(newFileName + ".html");
+        File outputScript;
+        outputScript = new File(newFileName + ".js");
+        File outputCSS;
+        outputCSS = new File(newFileName + ".css");
+
+        html_out = new BufferedWriter(new FileWriter(outputHtml));
+		js_out = new BufferedWriter(new FileWriter(outputScript));
+		css_out = new BufferedWriter(new FileWriter(outputCSS));
 
 		//initialize Jsoup document
 		doc = Jsoup.parse(inputFile, "UTF-8");
