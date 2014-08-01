@@ -1,4 +1,4 @@
-package org.cspapplier;
+package main.java.org.cspapplier;
 
 import org.jsoup.nodes.Document;
 

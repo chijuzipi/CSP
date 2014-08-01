@@ -1,4 +1,4 @@
-package org.cspapplier;
+package main.java.org.cspapplier;
 /**
  * Created by Shuangping on 7/30/2014.
  */
@@ -7,6 +7,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 public class CSPGenerator {
+	private String newFileName;
     public String generateCSPHeader(Elements ele, Elements ele_css)
     {
         String CSPHeader = "Content-Security-Policy: default-src 'self'; script-src 'slef' ";

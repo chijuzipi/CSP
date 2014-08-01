@@ -1,4 +1,4 @@
-package org.cspapplier;
+package main.java.org.cspapplier;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -68,7 +68,6 @@ public class URLContentAnalyzer
 
         //select and write inline style to .css file and remove it from HTML
         extractInlineCSS();
-        }
     }
 
     public void extractBlockJS() throws IOException
@@ -106,6 +105,7 @@ public class URLContentAnalyzer
         }
 
         bufferJS.write("});");
+		bufferJS.close();
     }
 
 	// Write inline script to external .js file
@@ -135,6 +135,7 @@ public class URLContentAnalyzer
 			bufferJS.write("element_" + ele_id + ".addEventListener(\"" + jsTriggerEvent
                            + "\", function(){" + function_content + "}, false);" );
 		}
+
 	}
 
     public void extractBlockCSS() throws IOException
@@ -165,6 +166,7 @@ public class URLContentAnalyzer
             bufferCSS.write("#" + cssId + " {" + cssContent + "}");
             bufferCSS.write("\r\n");
         }
+        bufferCSS.close();
     }
 
 	public static void main(String[] args) throws IOException

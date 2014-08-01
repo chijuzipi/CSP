@@ -1,4 +1,4 @@
-package org.cspapplier;
+package main.java.org.cspapplier;
 
 import java.io.File;
 
@@ -8,11 +8,11 @@ import java.io.File;
 
 public class JSAnalyzer {
     public JSAnalyzer(String jsFile) {
-        File jsList = File(input);
+        File jsList = new File(jsFile);
 
     }
     public void jsJSONGenerator() {}
     public void jsJSONParser() {}
     public void jsJSONCompare() {}
-    public String getXpath() {}
+    public String getXpath() {return "resutl";}
 }
