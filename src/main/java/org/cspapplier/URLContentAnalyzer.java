@@ -19,20 +19,20 @@ import org.jsoup.select.Elements;
 
 public class URLContentAnalyzer
 {
-	// For creating id for extracted elements
-	private int jsCount;
-	private int cssCount;
+    // For creating id for extracted elements
+    private int jsCount;
+    private int cssCount;
 
-	private BufferedWriter bufferJS;
-	private BufferedWriter bufferCSS;
+    private BufferedWriter bufferJS;
+    private BufferedWriter bufferCSS;
 
-	public Document inputDOM;
-	public String newFileName;
+    public Document inputDOM;
+    public String newFileName;
 
-	public URLContentAnalyzer(String input) throws IOException {
-		// Initialize counters to generate id for inline JS/CSS
-		jsCount = 0;
-		cssCount = 0;
+    public URLContentAnalyzer(String input) throws IOException {
+        // Initialize counters to generate id for inline JS/CSS
+        jsCount = 0;
+        cssCount = 0;
 
         // Create a filename to write new HTML
         createNewHTMlFileName(input);
@@ -43,12 +43,12 @@ public class URLContentAnalyzer
         File outputCSS = new File(newFileName + ".css");
 
         // Prepare buffer for file IO
-		bufferJS = new BufferedWriter(new FileWriter(outputScript));
-		bufferCSS = new BufferedWriter(new FileWriter(outputCSS));
+        bufferJS = new BufferedWriter(new FileWriter(outputScript));
+        bufferCSS = new BufferedWriter(new FileWriter(outputCSS));
 
-		// Parse the DOM structure of the input URL content
-		inputDOM = Jsoup.parse(inputFile, "UTF-8");
-	}
+        // Parse the DOM structure of the input URL content
+        inputDOM = Jsoup.parse(inputFile, "UTF-8");
+    }
 
     public void createNewHTMlFileName(String originalFileName) throws IOException {
         String[] pathList = originalFileName.trim().split("/");
@@ -118,35 +118,35 @@ public class URLContentAnalyzer
         bufferJS.write("});");
     }
 
-	// Write inline script to external .js file
-	public void extractEachInlineJS(Elements inlineJSElements, String event) throws IOException {
-		// Remove first two characters (e.g. "on" in "onclick")
-		String jsTriggerEvent = event.substring(2);
-		for (Element jsElement : inlineJSElements)
-		{
-			// add id check, if exists then use it. otherwise create a new one
-			String jsElementID = jsElement.id();
-			if (jsElementID.equals(""))
-			{
-				// Convert to String
-				jsElement.attr("id", String.valueOf(jsCount));
-				jsElementID = String.valueOf(jsCount);
-				jsCount++;
-			}
-			
-			String inlineJSContent = jsElement.attr(event);
-			
-			// Delete trigger attribute
-			jsElement.removeAttr(event);
+    // Write inline script to external .js file
+    public void extractEachInlineJS(Elements inlineJSElements, String event) throws IOException {
+        // Remove first two characters (e.g. "on" in "onclick")
+        String jsTriggerEvent = event.substring(2);
+        for (Element jsElement : inlineJSElements)
+        {
+            // add id check, if exists then use it. otherwise create a new one
+            String jsElementID = jsElement.id();
+            if (jsElementID.equals(""))
+            {
+                // Convert to String
+                jsElement.attr("id", String.valueOf(jsCount));
+                jsElementID = String.valueOf(jsCount);
+                jsCount++;
+            }
+            
+            String inlineJSContent = jsElement.attr(event);
+            
+            // Delete trigger attribute
+            jsElement.removeAttr(event);
 
             // Add event listener for the js
-			bufferJS.write("\r\n");
-			bufferJS.write("var element_" + jsElementID + " = document.getElementById(\"" + jsElementID + "\");");
-			bufferJS.write("\r\n");
-			bufferJS.write("element_" + jsElementID + ".addEventListener(\"" + jsTriggerEvent
+            bufferJS.write("\r\n");
+            bufferJS.write("var element_" + jsElementID + " = document.getElementById(\"" + jsElementID + "\");");
+            bufferJS.write("\r\n");
+            bufferJS.write("element_" + jsElementID + ".addEventListener(\"" + jsTriggerEvent
                            + "\", function(){" + inlineJSContent + "}, false);" );
-		}
-	}
+        }
+    }
 
     public void extractBlockCSS() throws IOException {
         Elements inlineCSS = inputDOM.select("style");
@@ -176,13 +176,13 @@ public class URLContentAnalyzer
         }
     }
 
-	public static void main(String[] args) throws IOException {
-		String htmlFile = "demo/Twitter.html";
+    public static void main(String[] args) throws IOException {
+        String htmlFile = "demo/Twitter.html";
 
-		URLContentAnalyzer getURL = new URLContentAnalyzer(htmlFile);
-		getURL.extractJS();
+        URLContentAnalyzer getURL = new URLContentAnalyzer(htmlFile);
+        getURL.extractJS();
 
         HTMLGenerator newHTML = new HTMLGenerator(getURL);
         newHTML.generateHTML();
-	}
+    }
 }
