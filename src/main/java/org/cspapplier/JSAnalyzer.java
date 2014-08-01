@@ -8,11 +8,11 @@ import java.io.File;
 
 public class JSAnalyzer {
     public JSAnalyzer(String jsFile) {
-        File jsList = File(input);
+//        File jsList = File(input);
 
     }
-    public void jsJSONGenerator() {}
-    public void jsJSONParser() {}
-    public void jsJSONCompare() {}
-    public String getXpath() {}
+//    public void jsJSONGenerator() {}
+//    public void jsJSONParser() {}
+//    public void jsJSONCompare() {}
+//    public String getXpath() {}
 }
