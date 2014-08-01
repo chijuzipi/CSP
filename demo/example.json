@@ -1,0 +1,43 @@
+{
+	"external": [
+        { 
+            "identity": "js_ext_1",
+            "src": "http://www.google.com",
+            "node": {
+                "tag": "script",
+                "id": "abc",
+                "class": "abc",
+                "xpath": "head/"
+            }
+        },
+        ...
+	],
+	
+	"local": [
+	    {
+	        "identity": "js_local_1",
+	        "file": "abc.js",
+	        "node": {
+                "tag": "script",
+                "id": "abc",
+                "class": "abc",
+                "xpath": "body/"
+            }
+	    },
+	    ...
+	],
+	
+	"inline": [
+	    {
+	        "identity": "js_inline_1",
+	        "node": {
+                "tag": "span",
+                "id": "abc",
+                "class": "abc",
+                "trigger": "onClick",
+                "xpath": "body/div[2]/div[1]/p[2]"
+            }
+	    },
+	    ...
+	]
+}
