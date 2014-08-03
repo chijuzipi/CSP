@@ -10,14 +10,20 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import com.google.gson.*;
+
 public class URLContentAnalyzer
 {
-	// For creating id for extracted elements
+	// Creating id for extracted elements
 	private int jsCount;
 	private int cssCount;
 
+	private File outputScript;
+	private File outputCSS;
+	private File outputJson;
 	private BufferedWriter bufferJS;
 	private BufferedWriter bufferCSS;
+	private BufferedWriter bufferJson;
 
 	public Document inputDOM;
 	public String newFileName;
@@ -28,27 +34,20 @@ public class URLContentAnalyzer
 		jsCount = 0;
 		cssCount = 0;
 
-		// Prepare IO
+		// Parse the DOM structure fo the input URL content
 		File inputFile = new File(input);
-
+		inputDOM = Jsoup.parse(inputFile, "UTF-8");
+		
+		// Get the new file names
         String[] pathList = input.trim().split("/");
 		String fileName = pathList[pathList.length -1];
-		System.out.println(fileName);
-
 		String[] fileNameList = fileName.split("\\.");
-		System.out.println(fileNameList.length);
-		
 		newFileName = fileNameList[fileNameList.length - 2];
-		System.out.println(newFileName);
 
-        File outputScript = new File(newFileName + ".js");
-        File outputCSS = new File(newFileName + ".css");
+		// Prepare IO for .json file
+        // outputJson = new File(newFileName + ".json");
+        // bufferJson = new BufferedWriter(new FileWriter(outputJson));
 
-		bufferJS = new BufferedWriter(new FileWriter(outputScript));
-		bufferCSS = new BufferedWriter(new FileWriter(outputCSS));
-
-		// Parse the DOM structure of the input URL content
-		inputDOM = Jsoup.parse(inputFile, "UTF-8");
 	}
 
     public void processHTML() throws IOException
@@ -74,11 +73,17 @@ public class URLContentAnalyzer
     {
         Elements blockJS = inputDOM.select("script").not("script[src]");
         for (Element item : blockJS){
+        	String jsFileSuffix = generateJsFileSuffix(item);
+        	outputScript = new File(newFileName + "_" + jsFileSuffix + ".js");
+        	bufferJS = new BufferedWriter(new FileWriter(outputScript));
             bufferJS.write(item.data());
+            bufferJS.close();
+
             // Delete the element
             item.remove();
         }
     }
+    
 
     public void extractInlineJS() throws IOException
     {
@@ -142,6 +147,8 @@ public class URLContentAnalyzer
     {
         Elements inlineCSS = inputDOM.select("style");
         for (Element item : inlineCSS){
+        	outputCSS = new File(newFileName + ".css");
+        	bufferCSS = new BufferedWriter(new FileWriter(outputCSS));
             bufferCSS.write(item.data());
             // Delete the element
             item.remove();
@@ -167,6 +174,12 @@ public class URLContentAnalyzer
             bufferCSS.write("\r\n");
         }
         bufferCSS.close();
+    }
+    
+    private String generateJsFileSuffix(Element item) {
+    	String suffix; 
+    	suffix = Integer.toString(item.data().hashCode());
+    	return suffix;
     }
 
 	public static void main(String[] args) throws IOException

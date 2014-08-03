@@ -7,9 +7,6 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
-/**
- * Created by Shuangping on 7/30/2014.
- */
 public class HTMLGenerator {
     private final Document inputDOM;
     private final String newFileName;

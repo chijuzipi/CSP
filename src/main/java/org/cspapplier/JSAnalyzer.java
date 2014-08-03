@@ -1,18 +1,15 @@
 package main.java.org.cspapplier;
-
 import java.io.File;
-
-/**
- * Created by Shuangping on 7/30/2014.
- */
+import com.google.gson.*;
 
 public class JSAnalyzer {
-    public JSAnalyzer(String jsFile) {
-        File jsList = new File(jsFile);
-
+	private JsonObject json;
+    public JSAnalyzer(JsonObject jsonObj) {
+    	this.json = jsonObj;
     }
+    
     public void jsJSONGenerator() {}
     public void jsJSONParser() {}
     public void jsJSONCompare() {}
-    public String getXpath() {return "resutl";}
+    public String getXpath() {return "result";}
 }
