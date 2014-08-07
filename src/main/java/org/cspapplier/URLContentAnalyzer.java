@@ -1,8 +1,13 @@
 package org.cspapplier;
 
+import org.cspapplier.json.JsonGenerator;
+import org.cspapplier.util.ElementEventBinder;
+import org.cspapplier.util.SHAHash;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+
 import java.io.File;
-import java.io.FileWriter;
-import java.io.BufferedWriter;
 import java.io.IOException;
 
 import org.jsoup.Jsoup;
@@ -19,82 +24,76 @@ import org.jsoup.select.Elements;
 
 public class URLContentAnalyzer
 {
-    // For creating id for extracted elements
-    private int jsCount;
-    private int cssCount;
-
-    private BufferedWriter bufferJS;
-    private BufferedWriter bufferCSS;
-
     public Document inputDOM;
-    public String newFileName;
+
+    public HashMap<String, Elements> externalJSMap;
+    public HashMap<String, Elements> blockJSMap;
+    public HashMap<String, ArrayList<ElementEventBinder>> inlineJSMap;
 
     public URLContentAnalyzer(String input) throws IOException {
-        // Initialize counters to generate id for inline JS/CSS
-        jsCount = 0;
-        cssCount = 0;
+        externalJSMap = new HashMap<String, Elements>();
+        blockJSMap = new HashMap<String, Elements>();
+        inlineJSMap = new HashMap<String, ArrayList<ElementEventBinder>>();
 
-        // Create a filename to write new HTML
-        createNewHTMlFileName(input);
-
-        // Prepare IO files
         File inputFile = new File(input);
-        File outputScript = new File(newFileName + ".js");
-        File outputCSS = new File(newFileName + ".css");
-
-        // Prepare buffer for file IO
-        bufferJS = new BufferedWriter(new FileWriter(outputScript));
-        bufferCSS = new BufferedWriter(new FileWriter(outputCSS));
 
         // Parse the DOM structure of the input URL content
-        inputDOM = Jsoup.parse(inputFile, "UTF-8");
+        this.inputDOM = Jsoup.parse(inputFile, "UTF-8");
+
+        generateJSHashMap();
     }
 
-    public void createNewHTMlFileName(String originalFileName) throws IOException {
-        String[] pathList = originalFileName.trim().split("/");
-        String fileName = pathList[pathList.length - 1];
-        System.out.println(fileName);
-
-        String[] fileNameList = fileName.split("\\.");
-        System.out.println(fileNameList.length);
-
-        newFileName = fileNameList[fileNameList.length - 2];
-        System.out.println(newFileName);
+    public void generateJSHashMap() throws IOException {
+        generateExternalHashMap();
+        generateBlockHashMap();
+        generateInlineHashMap();
     }
 
-    public void extractJS() throws IOException {
-        // Select and write block script to .js file and remove it from HTML
-        extractBlockJS();
+//    public void extractCSS() throws IOException {
+//        // Select and write block style to .css file and remove it from HTML
+//        extractBlockCSS();
+//
+//        // Select and write inline style to .css file and remove it from HTML
+//        extractInlineCSS();
+//    }
 
-        // Select and write inline script to .js file and remove it from HTML
-        extractInlineJS();
-
-        bufferJS.close();
+    public void generateExternalHashMap() throws Exception {
+        Elements externalJSElements = inputDOM.select("script[src]");
+        Elements storeElements;
+        String identity;
+        for (Element element : externalJSElements) {
+            identity = SHAHash.getHashCode(element.attr("src"));
+            storeElements = externalJSMap.get(identity);
+            if (storeElements == null) {
+                storeElements = new Elements();
+                storeElements.add(element);
+            } else {
+                if (!storeElements.contains(element)) {
+                    storeElements.add(element);
+                }
+            }
+        }
     }
-
-    public void extractCSS() throws IOException {
-        // Select and write block style to .css file and remove it from HTML
-        extractBlockCSS();
-
-        // Select and write inline style to .css file and remove it from HTML
-        extractInlineCSS();
-
-        bufferCSS.close();
-    }
-
-    public void extractBlockJS() throws IOException {
+    public void generateBlockHashMap() throws Exception {
         Elements blockJSElements = inputDOM.select("script").not("script[src]");
-        for (Element jsElement : blockJSElements){
-            bufferJS.write(jsElement.data());
-
-            // Remove the element
-            jsElement.remove();
+        Elements storeElements;
+        String identity;
+        for (Element element : blockJSElements) {
+            identity = SHAHash.getHashCode(element.attr("src"));
+            storeElements = externalJSMap.get(identity);
+            if (storeElements == null) {
+                storeElements = new Elements();
+                storeElements.add(element);
+            } else {
+                if (!storeElements.contains(element)) {
+                    storeElements.add(element);
+                }
+            }
         }
     }
 
-    public void extractInlineJS() throws IOException {
-        Elements inlineJSElements;
-        String[] triggerEvents = {
+    public void generateInlineHashMap() throws IOException {
+        String[] events = {
             // Mouse Events
             "onclick", "ondblclick", "onmousedown", "onmousemove", "onmouseover", "onmouseout", "onmouseup",
             // Keyboard Events
@@ -105,18 +104,12 @@ public class URLContentAnalyzer
             "onblur", "onchange", "onfocus", "onreset", "onselect", "onsubmit"
         };
 
-        // Write the document ready part
-        bufferJS.write("\r\n");
-        bufferJS.write("document.addEventListener('DOMContentReady', function () {");
-        bufferJS.write("\r\n");
-
-        for (String event : triggerEvents) {
-            inlineJSElements = inputDOM.select("[" + event +"]");
-            extractEachInlineJS(inlineJSElements, event);
+        ArrayList<ElementEventBinder> storeElements;
+        for (String event : events) {
+            inputDOM.select("[" + event + "]");
         }
-
-        bufferJS.write("});");
     }
+
 
     // Write inline script to external .js file
     public void extractEachInlineJS(Elements inlineJSElements, String event) throws IOException {
@@ -148,32 +141,36 @@ public class URLContentAnalyzer
         }
     }
 
-    public void extractBlockCSS() throws IOException {
-        Elements inlineCSS = inputDOM.select("style");
-        for (Element cssElement : inlineCSS){
-            bufferCSS.write(cssElement.data());
-            // Delete the element
-            cssElement.remove();
-        }
-    }
-    public void extractInlineCSS() throws IOException {
-        Elements inlineCSS = inputDOM.select("[style]");
-        for (Element elementCSS : inlineCSS) {
-            String cssID;
-            if (elementCSS.id().equals("")) {
-                elementCSS.attr("id", String.valueOf(cssCount));
-                cssID = String.valueOf(cssCount);
-                cssCount++;
-            } else {
-                cssID = elementCSS.id();
-            }
-            String cssContent = elementCSS.attr("style");
-            elementCSS.removeAttr("style");
+//    public void extractBlockCSS() throws IOException {
+//        Elements inlineCSS = inputDOM.select("style");
+//        for (Element cssElement : inlineCSS){
+//            bufferCSS.write(cssElement.data());
+//            // Delete the element
+//            cssElement.remove();
+//        }
+//    }
+//    public void extractInlineCSS() throws IOException {
+//        Elements inlineCSS = inputDOM.select("[style]");
+//        for (Element elementCSS : inlineCSS) {
+//            String cssID;
+//            if (elementCSS.id().equals("")) {
+//                elementCSS.attr("id", String.valueOf(cssCount));
+//                cssID = String.valueOf(cssCount);
+//                cssCount++;
+//            } else {
+//                cssID = elementCSS.id();
+//            }
+//            String cssContent = elementCSS.attr("style");
+//            elementCSS.removeAttr("style");
+//
+//            bufferCSS.write("\r\n");
+//            bufferCSS.write("#" + cssID + " {" + cssContent + "}");
+//            bufferCSS.write("\r\n");
+//        }
+//    }
 
-            bufferCSS.write("\r\n");
-            bufferCSS.write("#" + cssID + " {" + cssContent + "}");
-            bufferCSS.write("\r\n");
-        }
+    public void generateJSJSON(JsonGenerator jsJson) {
+        gson
     }
 
     public static void main(String[] args) throws IOException {
@@ -182,7 +179,7 @@ public class URLContentAnalyzer
         URLContentAnalyzer getURL = new URLContentAnalyzer(htmlFile);
         getURL.extractJS();
 
-        HTMLGenerator newHTML = new HTMLGenerator(getURL);
-        newHTML.generateHTML();
+        //HTMLGenerator newHTML = new HTMLGenerator(getURL);
+        //newHTML.generateHTML();
     }
 }

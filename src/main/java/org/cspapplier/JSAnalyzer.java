@@ -11,7 +11,7 @@ public class JSAnalyzer {
 //        File jsList = File(input);
 
     }
-//    public void jsJSONGenerator() {}
+
 //    public void jsJSONParser() {}
 //    public void jsJSONCompare() {}
 //    public String getXpath() {}
