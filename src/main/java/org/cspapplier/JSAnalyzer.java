@@ -1,10 +1,7 @@
 package org.cspapplier;
 
 import java.io.File;
-
-/**
- * Created by Shuangping on 7/30/2014.
- */
+import com.google.gson.*;
 
 public class JSAnalyzer {
     public JSAnalyzer(String jsFile) {

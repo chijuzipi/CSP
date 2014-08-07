@@ -15,12 +15,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-/**
- * URLContentAnalyzer
- *
- * Analyze the web content pulled from given URL. Inline & block Javascript
- * and CSS are extracted to external files.
- */
+import com.google.gson.*;
 
 public class URLContentAnalyzer
 {
@@ -91,6 +86,7 @@ public class URLContentAnalyzer
             }
         }
     }
+    
 
     public void generateInlineHashMap() throws IOException {
         String[] events = {
@@ -171,6 +167,12 @@ public class URLContentAnalyzer
 
     public void generateJSJSON(JsonGenerator jsJson) {
         gson
+    }
+    
+    private String generateJsFileSuffix(Element item) {
+    	String suffix; 
+    	suffix = Integer.toString(item.data().hashCode());
+    	return suffix;
     }
 
     public static void main(String[] args) throws IOException {
