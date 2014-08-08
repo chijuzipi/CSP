@@ -1,4 +1,4 @@
-package org.cspapplier;
+package main.java.org.cspapplier;
 
 import java.io.File;
 import java.io.FileWriter;
@@ -188,7 +188,7 @@ public class URLContentAnalyzer
         URLContentAnalyzer getURL = new URLContentAnalyzer(htmlFile);
         getURL.extractJS();
 
-        HTMLGenerator newHTML = new HTMLGenerator(getURL);
-        newHTML.generateHTML();
+       // HTMLGenerator newHTML = new HTMLGenerator(getURL);
+       // newHTML.generateHTML();
     }
 }

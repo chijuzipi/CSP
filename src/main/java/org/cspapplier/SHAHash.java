@@ -19,7 +19,7 @@ public class SHAHash {
 	    	}
 	 
 	    	hashCode = hexString.toString();
-	        //System.out.println("Hex format for password : " + hashCode);
+	        System.out.println("Hex format for password : " + hashCode);
 		}
 		
 		public String getHasCode(){
@@ -27,7 +27,7 @@ public class SHAHash {
 		}
 
 	    public static void main(String[] args)throws Exception{
-	    	SHAHash test1 = new SHAHash("test1");
+	    	SHAHash test1 = new SHAHash("test1test2test3test4testesfgasdfasgagasdgasdgadgasdgasdfasdfadfiasfaeownlsdknf;lasdnkglashdg;oias;");
 	    	SHAHash test2 = new SHAHash("test2");
 	    	SHAHash test3 = new SHAHash("test3");
 	    }

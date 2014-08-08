@@ -1,5 +1,4 @@
-package org.cspapplier;
-
+package main.java.org.cspapplier;
 import org.jsoup.nodes.Document;
 
 import java.io.BufferedWriter;
@@ -20,9 +19,9 @@ public class HTMLGenerator {
     private final String newFileName;
     private BufferedWriter bufferHTML;
 
-    public HTMLGenerator(URLContentAnalyzer getURL) throws IOException {
-        this.inputDOM = getURL.inputDOM;
-        this.newFileName = getURL.newFileName;
+    public HTMLGenerator(URLContentAnalyzer URLAna, JSAnalyzer JSAna ) throws IOException {
+        this.inputDOM = URLAna.inputDOM;
+        this.newFileName = URLAna.newFileName;
 
         File outputHtml = new File(newFileName + ".html");
         bufferHTML = new BufferedWriter(new FileWriter(outputHtml));
