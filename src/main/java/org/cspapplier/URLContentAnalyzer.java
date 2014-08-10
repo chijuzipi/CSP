@@ -1,47 +1,68 @@
 package org.cspapplier;
 
-import org.cspapplier.json.JsonGenerator;
 import org.cspapplier.util.ElementEventBinder;
-import org.cspapplier.util.SHAHash;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-
-import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.io.File;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import com.google.gson.*;
-
 public class URLContentAnalyzer
 {
-    public Document inputDOM;
-
-    public HashMap<String, Elements> externalJSMap;
-    public HashMap<String, Elements> blockJSMap;
-    public HashMap<String, ArrayList<ElementEventBinder>> inlineJSMap;
+    private Document inputDOM;
+    private Elements externalJSElements;
+    private Elements blockJSElements;
+    private ArrayList<ElementEventBinder> inlineJSElementEvents;
 
     public URLContentAnalyzer(String input) throws IOException {
-        externalJSMap = new HashMap<String, Elements>();
-        blockJSMap = new HashMap<String, Elements>();
-        inlineJSMap = new HashMap<String, ArrayList<ElementEventBinder>>();
-
-        File inputFile = new File(input);
+        inlineJSElementEvents = new ArrayList<ElementEventBinder>();
 
         // Parse the DOM structure of the input URL content
+        File inputFile = new File(input);
         this.inputDOM = Jsoup.parse(inputFile, "UTF-8");
-
-        generateJSHashMap();
     }
 
-    public void generateJSHashMap() throws IOException {
-        generateExternalHashMap();
-        generateBlockHashMap();
-        generateInlineHashMap();
+    public void generateJSElements() {
+        generateExternalElements();
+        generateBlockElements();
+        generateInlineElementEvents();
+    }
+
+    public void generateExternalElements() {
+        this.externalJSElements = inputDOM.select("script[src]");
+    }
+
+    public void generateBlockElements() {
+        this.blockJSElements = inputDOM.select("script").not("script[src]");
+    }
+
+    public void generateInlineElementEvents() {
+        String[] events = {
+                // Mouse Events
+                "onclick", "ondblclick", "onmousedown", "onmousemove", "onmouseover", "onmouseout", "onmouseup",
+                // Keyboard Events
+                "onkeydown", "onkeypress", "onkeyup",
+                // Frame/Object Events
+                "onabort", "onerror", "onload", "onresize", "onscroll", "onunload",
+                // Form Events
+                "onblur", "onchange", "onfocus", "onreset", "onselect", "onsubmit"
+        };
+
+        Elements inlineElements;
+        ElementEventBinder elementEvent;
+        for (String event : events) {
+            inlineElements = inputDOM.select("[" + event + "]");
+            if (inlineElements.size() > 0) {
+                for (Element element : inlineElements) {
+                    elementEvent = new ElementEventBinder(element, event);
+                    this.inlineJSElementEvents.add(elementEvent);
+                }
+            }
+        }
     }
 
 //    public void extractCSS() throws IOException {
@@ -51,91 +72,6 @@ public class URLContentAnalyzer
 //        // Select and write inline style to .css file and remove it from HTML
 //        extractInlineCSS();
 //    }
-
-    public void generateExternalHashMap() throws Exception {
-        Elements externalJSElements = inputDOM.select("script[src]");
-        Elements storeElements;
-        String identity;
-        for (Element element : externalJSElements) {
-            identity = SHAHash.getHashCode(element.attr("src"));
-            storeElements = externalJSMap.get(identity);
-            if (storeElements == null) {
-                storeElements = new Elements();
-                storeElements.add(element);
-            } else {
-                if (!storeElements.contains(element)) {
-                    storeElements.add(element);
-                }
-            }
-        }
-    }
-    public void generateBlockHashMap() throws Exception {
-        Elements blockJSElements = inputDOM.select("script").not("script[src]");
-        Elements storeElements;
-        String identity;
-        for (Element element : blockJSElements) {
-            identity = SHAHash.getHashCode(element.attr("src"));
-            storeElements = externalJSMap.get(identity);
-            if (storeElements == null) {
-                storeElements = new Elements();
-                storeElements.add(element);
-            } else {
-                if (!storeElements.contains(element)) {
-                    storeElements.add(element);
-                }
-            }
-        }
-    }
-    
-
-    public void generateInlineHashMap() throws IOException {
-        String[] events = {
-            // Mouse Events
-            "onclick", "ondblclick", "onmousedown", "onmousemove", "onmouseover", "onmouseout", "onmouseup",
-            // Keyboard Events
-            "onkeydown", "onkeypress", "onkeyup",
-            // Frame/Object Events
-            "onabort", "onerror", "onload", "onresize", "onscroll", "onunload",
-            // Form Events
-            "onblur", "onchange", "onfocus", "onreset", "onselect", "onsubmit"
-        };
-
-        ArrayList<ElementEventBinder> storeElements;
-        for (String event : events) {
-            inputDOM.select("[" + event + "]");
-        }
-    }
-
-
-    // Write inline script to external .js file
-    public void extractEachInlineJS(Elements inlineJSElements, String event) throws IOException {
-        // Remove first two characters (e.g. "on" in "onclick")
-        String jsTriggerEvent = event.substring(2);
-        for (Element jsElement : inlineJSElements)
-        {
-            // add id check, if exists then use it. otherwise create a new one
-            String jsElementID = jsElement.id();
-            if (jsElementID.equals(""))
-            {
-                // Convert to String
-                jsElement.attr("id", String.valueOf(jsCount));
-                jsElementID = String.valueOf(jsCount);
-                jsCount++;
-            }
-            
-            String inlineJSContent = jsElement.attr(event);
-            
-            // Delete trigger attribute
-            jsElement.removeAttr(event);
-
-            // Add event listener for the js
-            bufferJS.write("\r\n");
-            bufferJS.write("var element_" + jsElementID + " = document.getElementById(\"" + jsElementID + "\");");
-            bufferJS.write("\r\n");
-            bufferJS.write("element_" + jsElementID + ".addEventListener(\"" + jsTriggerEvent
-                           + "\", function(){" + inlineJSContent + "}, false);" );
-        }
-    }
 
 //    public void extractBlockCSS() throws IOException {
 //        Elements inlineCSS = inputDOM.select("style");
@@ -165,23 +101,30 @@ public class URLContentAnalyzer
 //        }
 //    }
 
-    public void generateJSJSON(JsonGenerator jsJson) {
-        gson
-    }
-    
-    private String generateJsFileSuffix(Element item) {
-    	String suffix; 
-    	suffix = Integer.toString(item.data().hashCode());
-    	return suffix;
+    public Document getInputDOM() {
+        return inputDOM;
     }
 
-    public static void main(String[] args) throws IOException {
-        String htmlFile = "demo/Twitter.html";
+    public Elements getExternalJSElements() {
+        return externalJSElements;
+    }
 
-        URLContentAnalyzer getURL = new URLContentAnalyzer(htmlFile);
-        getURL.extractJS();
+    public void setExternalJSElements(Elements externalJSElements) {
+        this.externalJSElements = externalJSElements;
+    }
 
-        //HTMLGenerator newHTML = new HTMLGenerator(getURL);
-        //newHTML.generateHTML();
+    public Elements getBlockJSElements() {
+        return blockJSElements;
+    }
+
+    public void setBlockJSElements(Elements blockJSElements) {
+        this.blockJSElements = blockJSElements;
+    }
+    public ArrayList<ElementEventBinder> getInlineJSElementEvents() {
+        return inlineJSElementEvents;
+    }
+
+    public void setInlineJSElementEvents(ArrayList<ElementEventBinder> inlineJSElementEvents) {
+        this.inlineJSElementEvents = inlineJSElementEvents;
     }
 }
