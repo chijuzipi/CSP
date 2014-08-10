@@ -15,14 +15,8 @@ public class JsonAnalyzer {
     private ComparisonResult blockComparisonResult;
     private ComparisonResult inlineComparisonResult;
 
-    public JsonAnalyzer(HashMapInJson jsonFromRequest, String jsonFileName) throws IOException {
-        HashMapInJson jsonFromLocal = jsonFromFile(jsonFileName);
+    public JsonAnalyzer(HashMapInJson jsonFromRequest, HashMapInJson jsonFromLocal) throws IOException {
         compareJson(jsonFromRequest, jsonFromLocal);
-    }
-
-    public static boolean isLocalJsonExist(String hashURL) {
-        File localJson = new File(hashURL);
-        return localJson.exists();
     }
 
     private void compareJson(HashMapInJson jsonFromRequest, HashMapInJson jsonFromLocal) {
@@ -69,10 +63,9 @@ public class JsonAnalyzer {
 
                     diffList.setMissList(elementsMiss);
                     diffList.setMoreList(elementsMore);
+
                     warningList.put(id, diffList);
                 }
-
-
             } else {
                 blackList.add(id);
             }
@@ -81,8 +74,26 @@ public class JsonAnalyzer {
         return new ComparisonResult(warningList, blackList);
     }
 
+    public boolean isEmpty() {
+        return this.externalComparisonResult.isEmpty() &&
+               this.blockComparisonResult.isEmpty() &&
+               this.inlineComparisonResult.isEmpty();
+    }
 
-    public HashMapInJson jsonFromFile(String inputFileName) throws IOException {
+    public void updateLocalJson(HashMapInJson localJson) {
+        HashMap<String, DiffList> warningList = inlineComparisonResult.getWarningList();
+        for (String id : warningList.keySet()) {
+            localJson.getInline().get(id).addAll(warningList.get(id).getMissList());
+        }
+    }
+
+    public static boolean isLocalJsonExist(String hashURL) {
+        File localJson = new File(hashURL + ".json");
+        return localJson.exists();
+    }
+
+    public static HashMapInJson jsonFromFile(String hashURL) throws IOException {
+        String inputFileName = hashURL + ".json";
         BufferedReader inputJsonBuffer = new BufferedReader(new FileReader(inputFileName));
         try {
             String inputJson;

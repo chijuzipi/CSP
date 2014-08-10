@@ -24,6 +24,14 @@ public class HashMapGenerator {
         this.inlineJSMap = new HashMap<String, ArrayList<ElementEventBinder>>();
     }
 
+    public void generateElementHashMap(Elements externalJSElements,
+                                       Elements blockJSElements,
+                                       ArrayList<ElementEventBinder> elementEvents) throws Exception {
+        generateExternalHashMap(externalJSElements);
+        generateBlockHashMap(blockJSElements);
+        generateInlineHashMap(elementEvents);
+    }
+
     public void generateExternalHashMap(Elements externalJSElements) throws Exception {
         String identity;
         for (Element element : externalJSElements) {

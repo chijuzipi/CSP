@@ -26,6 +26,10 @@ public class ComparisonResult {
         this.blackList = blackList;
     }
 
+    public boolean isEmpty() {
+        return this.warningList.isEmpty() && this.blackList.isEmpty();
+    }
+
     public HashMap<String, DiffList> getWarningList() {
         return warningList;
     }

@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.util.HashMap;
 
 /**
  * JsonWriter.java
@@ -36,4 +37,5 @@ public class JsonWriter {
             fileOutputStream.close();
         }
     }
+
 }
