@@ -50,6 +50,7 @@ public class CSPApplier {
                 jsonWriter.write();
             }
 
+            // BlackList for inline script: jsonAnalyzer.getInlineComparisonResult().getBlackList(), it is ArrayList<String> type.
             // FIXME: Generate HTML using HashMaps from elementHashMap and the comparisonResult in jsonAnalyzer. Check isEmpty() before generating HTML.
 
         } else {

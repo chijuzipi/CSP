@@ -13,12 +13,10 @@ import java.util.ArrayList;
 public class DiffList {
     private ArrayList<ElementInJson> missList;
     private ArrayList<ElementInJson> moreList;
-    private ArrayList<ElementInJson> unionList;
 
     public DiffList() {
         this.missList = new ArrayList<ElementInJson>();
         this.moreList = new ArrayList<ElementInJson>();
-        this.unionList = new ArrayList<ElementInJson>();
     }
 
     public ArrayList<ElementInJson> getMissList() {
@@ -37,11 +35,4 @@ public class DiffList {
         this.moreList = moreList;
     }
 
-    public ArrayList<ElementInJson> getUnionList() {
-        return unionList;
-    }
-
-    public void setUnionList(ArrayList<ElementInJson> unionList) {
-        this.unionList = unionList;
-    }
 }
