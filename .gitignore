@@ -17,10 +17,12 @@ hs_err_pid*
 # Whitelist for libraries
 !lib/jsoup
 !lib/junit
-!lib/xmlunit
+!lib/google-gson
+!lib/hamcrest
 !lib/jsoup/*.jar
 !lib/junit/*.jar
-!lib/xmlunit/*.jar
+!lib/google-gson/*.jar
+!lib/hamcrest/*.jar
 
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm
 

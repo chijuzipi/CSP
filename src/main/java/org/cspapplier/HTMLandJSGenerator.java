@@ -26,10 +26,10 @@ import java.util.HashMap;
 import java.util.ArrayList;
 
 
-public class HTMLGenerator {
+public class HTMLandJSGenerator {
 
     //private HashMap<String, Element> externalJSMap;
-    private HashMap<String, Element> blockJSMap;
+    private HashMap<String, Elements> blockJSMap;
     private HashMap<String, ArrayList<ElementEventBinder>> inlineJSMap;
     
     private String newFileName;
@@ -51,7 +51,7 @@ public class HTMLGenerator {
     int inlineJsCount;
     int inlineCssCount;
 
-    public HTMLGenerator(HashMap<String, Element> bl, HashMap<String, ArrayList<ElementEventBinder>> in, String fileName) throws IOException{
+    public HTMLandJSGenerator(HashMap<String, Elements> bl, HashMap<String, ArrayList<ElementEventBinder>> in, String fileName) throws IOException{
         //this.externalJSMap = ex;
         this.blockJSMap = bl;
         this.inlineJSMap = in;
@@ -73,9 +73,12 @@ public class HTMLGenerator {
         bufferHTML = new BufferedWriter(new FileWriter(outputHTML));
 
         doc = Jsoup.parse(inputHTML, "UTF-8");
-        generateBlockJS();
-        generateInlineJS();
-        processHTML();
+    }
+    
+    public void generateFile() throws IOException{
+    	generateBlockJS();
+    	generateInlineJS();
+    	processHTML();
     }
     
     private String generateFileName(String fileName){
@@ -91,8 +94,10 @@ public class HTMLGenerator {
     }
 
     private void generateBlockJS() throws IOException{
-    	for(Element x : blockJSMap.values()){
-    		bufferJS.write(x.data().toString());
+    	for(Elements x : blockJSMap.values()){
+    		for(Element y : x){
+    			bufferJS.write(y.data().toString());
+    		}
     	}
     }
     
@@ -139,6 +144,7 @@ public class HTMLGenerator {
 			bufferJS.write("element_" + ele_id + ".addEventListener(\""+ eventExternal +"\", function(){" + function_content + "}, false);" );
 		}
     	bufferJS.write("});");
+    	bufferJS.close();
     }
     
 	private void processHTML() throws IOException {
@@ -191,5 +197,6 @@ public class HTMLGenerator {
 
 		// write html into a new file
 		bufferHTML.write(doc.toString());
+		bufferHTML.close();
 	}
 }

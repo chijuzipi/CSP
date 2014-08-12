@@ -40,6 +40,7 @@ public class CSPApplier {
                                                           elementHashMap.getInlineJSMap());
 
         if (JsonAnalyzer.isLocalJsonExist(hashURL)) {
+        	System.out.println("local template already exist!");
             HashMapInJson jsonFromLocal = JsonAnalyzer.jsonFromFile(hashURL);
             JsonAnalyzer jsonAnalyzer = new JsonAnalyzer(jsonFromRequest, jsonFromLocal);
 
@@ -48,14 +49,24 @@ public class CSPApplier {
                 jsonAnalyzer.updateLocalJson(jsonFromLocal);
                 JsonWriter jsonWriter = new JsonWriter(jsonFromLocal, hashURL);
                 jsonWriter.write();
+                elementHashMap.filterHashMap(jsonAnalyzer.getExternalComparisonResult(),
+                							  jsonAnalyzer.getBlockComparisonResult(),
+                							  jsonAnalyzer.getInlineComparisonResult());
             }
 
-            // FIXME: Generate HTML using HashMaps from elementHashMap and the comparisonResult in jsonAnalyzer. Check isEmpty() before generating HTML.
 
         } else {
+        	System.out.println("local template does not exist, this is the samping!");
             JsonWriter jsonWriter = new JsonWriter(jsonFromRequest, hashURL);
             jsonWriter.write();
             // FIXME: Generate HTML directly using HashMaps from elementHashMap
         }
+        
+        HTMLandJSGenerator htmlGen = new HTMLandJSGenerator(elementHashMap.getBlockJSMap(),
+        										  elementHashMap.getInlineJSMap(),
+        										  fileName);
+        htmlGen.generateFile();
+    
     }
+
 }

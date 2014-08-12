@@ -1,7 +1,9 @@
 package main.java.org.cspapplier;
 
+import main.java.org.cspapplier.json.ComparisonResult;
 import main.java.org.cspapplier.util.ElementEventBinder;
 import main.java.org.cspapplier.util.SHAHash;
+
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
@@ -93,5 +95,20 @@ public class HashMapGenerator {
 
     public void setInlineJSMap(HashMap<String, ArrayList<ElementEventBinder>> inlineJSMap) {
         this.inlineJSMap = inlineJSMap;
+    }
+    
+    public void filterHashMap(ComparisonResult exCr, ComparisonResult blCr, ComparisonResult inCr){
+    	ArrayList<String> exList = exCr.getBlackList();
+    	for (String bKey : exList){
+    		externalJSMap.remove(bKey);
+    	}
+    	ArrayList<String> blList = blCr.getBlackList();
+    	for (String bKey : blList){
+    		blockJSMap.remove(bKey);
+    	}
+    	ArrayList<String> inList = inCr.getBlackList();
+    	for (String bKey : inList){
+    		inlineJSMap.remove(bKey);
+    	}
     }
 }
