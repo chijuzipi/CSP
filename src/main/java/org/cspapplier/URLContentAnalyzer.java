@@ -1,194 +1,130 @@
 package main.java.org.cspapplier;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.BufferedWriter;
+import main.java.org.cspapplier.util.ElementEventBinder;
+
 import java.io.IOException;
+import java.util.ArrayList;
+import java.io.File;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
-import com.google.gson.*;
-
 public class URLContentAnalyzer
 {
-	// Creating id for extracted elements
-	private int jsCount;
-	private int cssCount;
-
-	private File outputScript;
-	private File outputCSS;
-	private File outputJson;
-	private BufferedWriter bufferJS;
-	private BufferedWriter bufferCSS;
-	private BufferedWriter bufferJson;
-
-	public Document inputDOM;
-	public String newFileName;
+    private Document inputDOM;
+    private Elements externalJSElements;
+    private Elements blockJSElements;
+    private ArrayList<ElementEventBinder> inlineJSElementEvents;
 
     public URLContentAnalyzer(String input) throws IOException {
-        // Initialize counters to generate id for inline JS/CSS
-        jsCount = 0;
-        cssCount = 0;
-
-        // Create a filename to write new HTML
-        createNewHTMlFileName(input);
-
-        // Prepare IO files
-        File inputFile = new File(input);
-        File outputScript = new File(newFileName + ".js");
-        File outputCSS = new File(newFileName + ".css");
-
-        // Prepare buffer for file IO
-        bufferJS = new BufferedWriter(new FileWriter(outputScript));
-        bufferCSS = new BufferedWriter(new FileWriter(outputCSS));
+        inlineJSElementEvents = new ArrayList<ElementEventBinder>();
 
         // Parse the DOM structure of the input URL content
-        inputDOM = Jsoup.parse(inputFile, "UTF-8");
+        File inputFile = new File(input);
+        this.inputDOM = Jsoup.parse(inputFile, "UTF-8");
     }
 
-    public void createNewHTMlFileName(String originalFileName) throws IOException {
-        String[] pathList = originalFileName.trim().split("/");
-        String fileName = pathList[pathList.length - 1];
-        System.out.println(fileName);
-
-        String[] fileNameList = fileName.split("\\.");
-        System.out.println(fileNameList.length);
-
-        newFileName = fileNameList[fileNameList.length - 2];
-        System.out.println(newFileName);
+    public void generateJSElements() {
+        generateExternalElements();
+        generateBlockElements();
+        generateInlineElementEvents();
     }
 
-    public void extractJS() throws IOException {
-        // Select and write block script to .js file and remove it from HTML
-        extractBlockJS();
-
-        // Select and write inline script to .js file and remove it from HTML
-        extractInlineJS();
-
-        bufferJS.close();
+    public void generateExternalElements() {
+        this.externalJSElements = inputDOM.select("script[src]");
     }
 
-    public void extractCSS() throws IOException {
-        // Select and write block style to .css file and remove it from HTML
-        extractBlockCSS();
-
-        // Select and write inline style to .css file and remove it from HTML
-        extractInlineCSS();
-
-        bufferCSS.close();
+    public void generateBlockElements() {
+        this.blockJSElements = inputDOM.select("script").not("script[src]");
     }
 
-    public void extractBlockJS() throws IOException {
-        Elements blockJSElements = inputDOM.select("script").not("script[src]");
-        for (Element jsElement : blockJSElements){
-            bufferJS.write(jsElement.data());
-
-            // Remove the element
-            jsElement.remove();
-        }
-    }
-    
-
-    public void extractInlineJS() throws IOException {
-        Elements inlineJSElements;
-        String[] triggerEvents = {
-            // Mouse Events
-            "onclick", "ondblclick", "onmousedown", "onmousemove", "onmouseover", "onmouseout", "onmouseup",
-            // Keyboard Events
-            "onkeydown", "onkeypress", "onkeyup",
-            // Frame/Object Events
-            "onabort", "onerror", "onload", "onresize", "onscroll", "onunload",
-            // Form Events
-            "onblur", "onchange", "onfocus", "onreset", "onselect", "onsubmit"
+    public void generateInlineElementEvents() {
+        String[] events = {
+                // Mouse Events
+                "onclick", "ondblclick", "onmousedown", "onmousemove", "onmouseover", "onmouseout", "onmouseup",
+                // Keyboard Events
+                "onkeydown", "onkeypress", "onkeyup",
+                // Frame/Object Events
+                "onabort", "onerror", "onload", "onresize", "onscroll", "onunload",
+                // Form Events
+                "onblur", "onchange", "onfocus", "onreset", "onselect", "onsubmit"
         };
 
-        // Write the document ready part
-        bufferJS.write("\r\n");
-        bufferJS.write("document.addEventListener('DOMContentReady', function () {");
-        bufferJS.write("\r\n");
-
-        for (String event : triggerEvents) {
-            inlineJSElements = inputDOM.select("[" + event +"]");
-            extractEachInlineJS(inlineJSElements, event);
-        }
-
-        bufferJS.write("});");
-    }
-
-    // Write inline script to external .js file
-    public void extractEachInlineJS(Elements inlineJSElements, String event) throws IOException {
-        // Remove first two characters (e.g. "on" in "onclick")
-        String jsTriggerEvent = event.substring(2);
-        for (Element jsElement : inlineJSElements)
-        {
-            // add id check, if exists then use it. otherwise create a new one
-            String jsElementID = jsElement.id();
-            if (jsElementID.equals(""))
-            {
-                // Convert to String
-                jsElement.attr("id", String.valueOf(jsCount));
-                jsElementID = String.valueOf(jsCount);
-                jsCount++;
+        Elements inlineElements;
+        ElementEventBinder elementEvent;
+        for (String event : events) {
+            inlineElements = inputDOM.select("[" + event + "]");
+            if (inlineElements.size() > 0) {
+                for (Element element : inlineElements) {
+                    elementEvent = new ElementEventBinder(element, event);
+                    this.inlineJSElementEvents.add(elementEvent);
+                }
             }
-            
-            String inlineJSContent = jsElement.attr(event);
-            
-            // Delete trigger attribute
-            jsElement.removeAttr(event);
-
-            // Add event listener for the js
-            bufferJS.write("\r\n");
-            bufferJS.write("var element_" + jsElementID + " = document.getElementById(\"" + jsElementID + "\");");
-            bufferJS.write("\r\n");
-            bufferJS.write("element_" + jsElementID + ".addEventListener(\"" + jsTriggerEvent
-                           + "\", function(){" + inlineJSContent + "}, false);" );
         }
     }
 
-    public void extractBlockCSS() throws IOException {
-        Elements inlineCSS = inputDOM.select("style");
-        for (Element cssElement : inlineCSS){
-            bufferCSS.write(cssElement.data());
-            // Delete the element
-            cssElement.remove();
-        }
+//    public void extractCSS() throws IOException {
+//        // Select and write block style to .css file and remove it from HTML
+//        extractBlockCSS();
+//
+//        // Select and write inline style to .css file and remove it from HTML
+//        extractInlineCSS();
+//    }
+
+//    public void extractBlockCSS() throws IOException {
+//        Elements inlineCSS = inputDOM.select("style");
+//        for (Element cssElement : inlineCSS){
+//            bufferCSS.write(cssElement.data());
+//            // Delete the element
+//            cssElement.remove();
+//        }
+//    }
+//    public void extractInlineCSS() throws IOException {
+//        Elements inlineCSS = inputDOM.select("[style]");
+//        for (Element elementCSS : inlineCSS) {
+//            String cssID;
+//            if (elementCSS.id().equals("")) {
+//                elementCSS.attr("id", String.valueOf(cssCount));
+//                cssID = String.valueOf(cssCount);
+//                cssCount++;
+//            } else {
+//                cssID = elementCSS.id();
+//            }
+//            String cssContent = elementCSS.attr("style");
+//            elementCSS.removeAttr("style");
+//
+//            bufferCSS.write("\r\n");
+//            bufferCSS.write("#" + cssID + " {" + cssContent + "}");
+//            bufferCSS.write("\r\n");
+//        }
+//    }
+
+    public Document getInputDOM() {
+        return inputDOM;
     }
-    public void extractInlineCSS() throws IOException {
-        Elements inlineCSS = inputDOM.select("[style]");
-        for (Element elementCSS : inlineCSS) {
-            String cssID;
-            if (elementCSS.id().equals("")) {
-                elementCSS.attr("id", String.valueOf(cssCount));
-                cssID = String.valueOf(cssCount);
-                cssCount++;
-            } else {
-                cssID = elementCSS.id();
-            }
-            String cssContent = elementCSS.attr("style");
-            elementCSS.removeAttr("style");
 
-            bufferCSS.write("\r\n");
-            bufferCSS.write("#" + cssID + " {" + cssContent + "}");
-            bufferCSS.write("\r\n");
-        }
-    }
-    
-    private String generateJsFileSuffix(Element item) {
-    	String suffix; 
-    	suffix = Integer.toString(item.data().hashCode());
-    	return suffix;
+    public Elements getExternalJSElements() {
+        return externalJSElements;
     }
 
-    public static void main(String[] args) throws IOException {
-        String htmlFile = "demo/Twitter.html";
+    public void setExternalJSElements(Elements externalJSElements) {
+        this.externalJSElements = externalJSElements;
+    }
 
-        URLContentAnalyzer getURL = new URLContentAnalyzer(htmlFile);
-        getURL.extractJS();
+    public Elements getBlockJSElements() {
+        return blockJSElements;
+    }
 
-       // HTMLGenerator newHTML = new HTMLGenerator(getURL);
-       // newHTML.generateHTML();
+    public void setBlockJSElements(Elements blockJSElements) {
+        this.blockJSElements = blockJSElements;
+    }
+    public ArrayList<ElementEventBinder> getInlineJSElementEvents() {
+        return inlineJSElementEvents;
+    }
+
+    public void setInlineJSElementEvents(ArrayList<ElementEventBinder> inlineJSElementEvents) {
+        this.inlineJSElementEvents = inlineJSElementEvents;
     }
 }
