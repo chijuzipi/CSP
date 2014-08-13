@@ -39,7 +39,7 @@ public class CSPApplier {
         jsonFromRequest.convertCSS(elementHashMap);
 
         if (JsonAnalyzer.isLocalJsonExist(getURL.getHashURL())) {
-        	System.out.println("Local template already exist!");
+            System.out.println("Local template already exist!");
             HashMapInJson jsonFromLocal = JsonAnalyzer.jsonFromFile(getURL.getHashURL());
             JsonAnalyzer jsonAnalyzer = new JsonAnalyzer(jsonFromRequest, jsonFromLocal);
 
@@ -53,7 +53,7 @@ public class CSPApplier {
             }
 
         } else {
-        	System.out.println("Local template does not exist! Generating new template...");
+            System.out.println("Local template does not exist! Generating new template...");
             JsonWriter jsonWriter = new JsonWriter(jsonFromRequest, getURL.getHashURL());
             jsonWriter.write();
         }
