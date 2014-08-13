@@ -48,16 +48,16 @@ public class URLContentGenerator {
     }
 
     private void generateBlockJS(BufferedWriter bufferJS) throws IOException {
-    	for (String jsID : hashMapGenerator.getBlockJSMap().keySet()) {
+        for (String jsID : hashMapGenerator.getBlockJSMap().keySet()) {
             bufferJS.write(hashMapGenerator.getBlockJSMap().get(jsID).get(0).data());
         }
     }
     
     private void generateInlineJS(BufferedWriter bufferJS) throws IOException, NoSuchAlgorithmException {
-		// Write the document ready part
-		bufferJS.write("\r\n");
-		bufferJS.write("document.addEventListener('DOMContentLoaded', function () {");
-		bufferJS.write("\r\n");
+        // Write the document ready part
+        bufferJS.write("\r\n");
+        bufferJS.write("document.addEventListener('DOMContentLoaded', function () {");
+        bufferJS.write("\r\n");
 
         Element element;
         String event;
@@ -83,7 +83,7 @@ public class URLContentGenerator {
                         "\", function() {" + jsContent + "}, false);");
             }
         }
-    	bufferJS.write("});");
+        bufferJS.write("});");
     }
 
     public void generateCSS() throws IOException, NoSuchAlgorithmException {
@@ -121,44 +121,44 @@ public class URLContentGenerator {
         }
     }
 
-	public void generateHTML() throws IOException {
+    public void generateHTML() throws IOException {
         String fileName = urlContentAnalyzer.getHashURL();
         File outputHTML = new File(fileName + ".html");
         BufferedWriter bufferHTML = new BufferedWriter(new FileWriter(outputHTML));
 
         Document doc = urlContentAnalyzer.getInputDOM();
 
-		// Remove block JS
-		for (Element element : urlContentAnalyzer.getBlockJSElements()){
-			element.remove();
-		}
-		
-		// Remove inline JS
-	    for (ElementEventBinder elementEvent : urlContentAnalyzer.getInlineJSElementEvents()){
-		    elementEvent.getElement().removeAttr(elementEvent.getEvent());
-		}	
+        // Remove block JS
+        for (Element element : urlContentAnalyzer.getBlockJSElements()){
+            element.remove();
+        }
+        
+        // Remove inline JS
+        for (ElementEventBinder elementEvent : urlContentAnalyzer.getInlineJSElementEvents()){
+            elementEvent.getElement().removeAttr(elementEvent.getEvent());
+        }    
 
-		// Remove block CSS
-		for (Element element : urlContentAnalyzer.getBlockCSSElements()){
-			element.remove();
-		}
+        // Remove block CSS
+        for (Element element : urlContentAnalyzer.getBlockCSSElements()){
+            element.remove();
+        }
 
-		// Remove inline CSS
-		for(Element element : urlContentAnalyzer.getInlineCSSElements()){
-			element.removeAttr("style");
-		}
-		
-		// Add external JS file to html
-		doc.head().appendElement("script").attr("src", fileName + ".js");
-		
-		// Add external CSS file to html
-		doc.head().appendElement("link").attr("rel", "stylesheet")
+        // Remove inline CSS
+        for(Element element : urlContentAnalyzer.getInlineCSSElements()){
+            element.removeAttr("style");
+        }
+        
+        // Add external JS file to html
+        doc.head().appendElement("script").attr("src", fileName + ".js");
+        
+        // Add external CSS file to html
+        doc.head().appendElement("link").attr("rel", "stylesheet")
                   .attr("type", "text/css").attr("href", fileName + ".css");
 
-		// Write html into a new file
-		bufferHTML.write(doc.toString());
-		bufferHTML.close();
-	}
+        // Write html into a new file
+        bufferHTML.write(doc.toString());
+        bufferHTML.close();
+    }
 
     public String generateElementID() throws NoSuchAlgorithmException {
         double randomNumber = randomGenerator.nextDouble();
