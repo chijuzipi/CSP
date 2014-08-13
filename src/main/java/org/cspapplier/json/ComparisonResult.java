@@ -1,4 +1,4 @@
-package main.java.org.cspapplier.json;
+package org.cspapplier.json;
 
 import java.util.ArrayList;
 import java.util.HashMap;

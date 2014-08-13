@@ -1,11 +1,13 @@
-package main.java.org.cspapplier;
+package org.cspapplier;
 
-import main.java.org.cspapplier.util.ElementEventBinder;
+import org.cspapplier.util.ElementEventBinder;
 
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.io.File;
 
+import org.cspapplier.util.SHAHash;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -14,42 +16,49 @@ import org.jsoup.select.Elements;
 public class URLContentAnalyzer
 {
     private Document inputDOM;
+    private String hashURL;
+
     private Elements externalJSElements;
     private Elements blockJSElements;
     private ArrayList<ElementEventBinder> inlineJSElementEvents;
 
-    public URLContentAnalyzer(String input) throws IOException {
+    private Elements blockCSSElements;
+    private Elements inlineCSSElements;
+
+    public URLContentAnalyzer(String fileName, String url) throws IOException, NoSuchAlgorithmException {
         inlineJSElementEvents = new ArrayList<ElementEventBinder>();
 
         // Parse the DOM structure of the input URL content
-        File inputFile = new File(input);
+
+        File inputFile = new File(fileName);
+        this.hashURL = SHAHash.getHashCode(url);
         this.inputDOM = Jsoup.parse(inputFile, "UTF-8");
     }
 
     public void generateJSElements() {
-        generateExternalElements();
-        generateBlockElements();
-        generateInlineElementEvents();
+        generateExternalJSElements();
+        generateBlockJSElements();
+        generateInlineJSElementEvents();
     }
 
-    public void generateExternalElements() {
+    public void generateExternalJSElements() {
         this.externalJSElements = inputDOM.select("script[src]");
     }
 
-    public void generateBlockElements() {
+    public void generateBlockJSElements() {
         this.blockJSElements = inputDOM.select("script").not("script[src]");
     }
 
-    public void generateInlineElementEvents() {
+    public void generateInlineJSElementEvents() {
         String[] events = {
-                // Mouse Events
-                "onclick", "ondblclick", "onmousedown", "onmousemove", "onmouseover", "onmouseout", "onmouseup",
-                // Keyboard Events
-                "onkeydown", "onkeypress", "onkeyup",
-                // Frame/Object Events
-                "onabort", "onerror", "onload", "onresize", "onscroll", "onunload",
-                // Form Events
-                "onblur", "onchange", "onfocus", "onreset", "onselect", "onsubmit"
+            // Mouse Events
+            "onclick", "ondblclick", "onmousedown", "onmousemove", "onmouseover", "onmouseout", "onmouseup",
+            // Keyboard Events
+            "onkeydown", "onkeypress", "onkeyup",
+            // Frame/Object Events
+            "onabort", "onerror", "onload", "onresize", "onscroll", "onunload",
+            // Form Events
+            "onblur", "onchange", "onfocus", "onreset", "onselect", "onsubmit"
         };
 
         Elements inlineElements;
@@ -65,42 +74,20 @@ public class URLContentAnalyzer
         }
     }
 
-//    public void extractCSS() throws IOException {
-//        // Select and write block style to .css file and remove it from HTML
-//        extractBlockCSS();
-//
-//        // Select and write inline style to .css file and remove it from HTML
-//        extractInlineCSS();
-//    }
+    public void generateCSSElements() {
+        generateBlockCSSElements();
+        generateInlineCSSElements();
+    }
 
-//    public void extractBlockCSS() throws IOException {
-//        Elements inlineCSS = inputDOM.select("style");
-//        for (Element cssElement : inlineCSS){
-//            bufferCSS.write(cssElement.data());
-//            // Delete the element
-//            cssElement.remove();
-//        }
-//    }
-//    public void extractInlineCSS() throws IOException {
-//        Elements inlineCSS = inputDOM.select("[style]");
-//        for (Element elementCSS : inlineCSS) {
-//            String cssID;
-//            if (elementCSS.id().equals("")) {
-//                elementCSS.attr("id", String.valueOf(cssCount));
-//                cssID = String.valueOf(cssCount);
-//                cssCount++;
-//            } else {
-//                cssID = elementCSS.id();
-//            }
-//            String cssContent = elementCSS.attr("style");
-//            elementCSS.removeAttr("style");
-//
-//            bufferCSS.write("\r\n");
-//            bufferCSS.write("#" + cssID + " {" + cssContent + "}");
-//            bufferCSS.write("\r\n");
-//        }
-//    }
+    public void generateBlockCSSElements() {
+        this.blockCSSElements = inputDOM.select("style");
+    }
 
+    public void generateInlineCSSElements() {
+        this.inlineCSSElements = inputDOM.select("[style]");
+    }
+
+    // Getters & Setters
     public Document getInputDOM() {
         return inputDOM;
     }
@@ -126,5 +113,29 @@ public class URLContentAnalyzer
 
     public void setInlineJSElementEvents(ArrayList<ElementEventBinder> inlineJSElementEvents) {
         this.inlineJSElementEvents = inlineJSElementEvents;
+    }
+
+    public String getHashURL() {
+        return hashURL;
+    }
+
+    public void setHashURL(String hashURL) {
+        this.hashURL = hashURL;
+    }
+
+    public Elements getBlockCSSElements() {
+        return blockCSSElements;
+    }
+
+    public void setBlockCSSElements(Elements blockCSSElements) {
+        this.blockCSSElements = blockCSSElements;
+    }
+
+    public Elements getInlineCSSElements() {
+        return inlineCSSElements;
+    }
+
+    public void setInlineCSSElements(Elements inlineCSSElements) {
+        this.inlineCSSElements = inlineCSSElements;
     }
 }

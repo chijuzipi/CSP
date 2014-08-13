@@ -1,12 +1,12 @@
-package test.java.org.cspapplier;
+package org.cspapplier;
 
-import main.java.org.cspapplier.util.ElementEventBinder;
-import main.java.org.cspapplier.*;
+import org.cspapplier.util.ElementEventBinder;
 import org.jsoup.nodes.Element;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 
 import static org.junit.Assert.*;
 
@@ -14,14 +14,15 @@ public class URLContentAnalyzerTest {
     private URLContentAnalyzer getURL;
 
     @Before
-    public void initialize() throws IOException {
+    public void initialize() throws IOException, NoSuchAlgorithmException {
         String fileName = "demo/index.html";
-        this.getURL = new URLContentAnalyzer(fileName);
+        String url = "www.test.com";
+        this.getURL = new URLContentAnalyzer(fileName, url);
     }
 
     @Test
-    public void testGenerateInlineElementEvents() {
-        this.getURL.generateInlineElementEvents();
+    public void testGenerateInlineJSElementEvents() {
+        this.getURL.generateInlineJSElementEvents();
 
         Element element;
         String event;
@@ -57,6 +58,13 @@ public class URLContentAnalyzerTest {
                 assertEquals("form1", element.id());
             }
         }
+    }
+
+    @Test
+    public void testGenerateCSSElements() throws Exception {
+        getURL.generateCSSElements();
+        assertEquals(1, getURL.getBlockCSSElements().size());
+        assertEquals(3, getURL.getInlineCSSElements().size());
     }
 
 }

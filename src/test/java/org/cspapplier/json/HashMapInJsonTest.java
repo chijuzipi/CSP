@@ -1,79 +1,105 @@
-package test.java.org.cspapplier.json;
+package org.cspapplier.json;
 
-import main.java.org.cspapplier.HashMapGenerator;
-import main.java.org.cspapplier.URLContentAnalyzer;
-import main.java.org.cspapplier.*;
-import main.java.org.cspapplier.json.*;
+import org.cspapplier.HashMapGenerator;
+import org.cspapplier.URLContentAnalyzer;
 import org.jsoup.nodes.Element;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 
 import static org.junit.Assert.*;
 
 public class HashMapInJsonTest {
 
-    private URLContentAnalyzer getURL;
     private HashMapGenerator hashMap;
     private HashMapInJson hashMapInJson;
 
     @Before
     public void initialize() throws Exception {
         String fileName = "demo/index.html";
-        this.getURL = new URLContentAnalyzer(fileName);
+        String url = "www.test.com";
+        URLContentAnalyzer getURL = new URLContentAnalyzer(fileName, url);
         getURL.generateJSElements();
+        getURL.generateCSSElements();
 
         this.hashMap = new HashMapGenerator();
-        this.hashMap.generateExternalHashMap(getURL.getExternalJSElements());
-        this.hashMap.generateBlockHashMap(getURL.getBlockJSElements());
-        this.hashMap.generateInlineHashMap(getURL.getInlineJSElementEvents());
+        this.hashMap.generateJSElementHashMap(getURL);
+        this.hashMap.generateCSSElementHashmap(getURL);
 
-        this.hashMapInJson = new HashMapInJson(this.hashMap.getExternalJSMap(),
-                                               this.hashMap.getBlockJSMap(),
-                                               this.hashMap.getInlineJSMap());
+        this.hashMapInJson = new HashMapInJson();
     }
 
     @Test
-    public void testGetExternal() throws Exception {
-        assertEquals(4, this.hashMapInJson.getExternal().size());
+    public void testConvertJS() throws Exception {
+        this.hashMapInJson.convertJS(hashMap);
 
+        // Test the total number of js
+        assertEquals(15, this.hashMapInJson.getJs().size());
+
+        // Test the content of src from external js
         String[] refSrcArray = new String[] {"http://cdn.bootcss.com/html5shiv/3.7.0/html5shiv.min.js",
                                              "http://cdn.bootcss.com/respond.js/1.3.0/respond.min.js",
                                              "http://cdn.bootcss.com/jquery/1.10.2/jquery.min.js",
                                              "http://cdn.bootcss.com/twitter-bootstrap/3.0.3/js/bootstrap.min.js"};
         List<String> refSrc = Arrays.asList(refSrcArray);
         List<String> src = new ArrayList<String>();
-        for (String id : this.hashMapInJson.getExternal().keySet()) {
-            for (ElementInJson elementInJson : this.hashMapInJson.getExternal().get(id)) {
-                src.add(elementInJson.getSrc());
+        for (String id : this.hashMapInJson.getJs().keySet()) {
+            for (ElementInJson elementInJson : this.hashMapInJson.getJs().get(id)) {
+                if (!elementInJson.getSrc().equals("")) {
+                    src.add(elementInJson.getSrc());
+                }
             }
         }
+
         src.removeAll(refSrc);
         assertEquals(0, src.size());
-    }
 
-    @Test
-    public void testGetBlock() throws Exception {
-        assertEquals(5, this.hashMapInJson.getBlock().size());
-    }
+        // Test the number of block JS
+        int numBlockJS = 0;
+        for (String id : this.hashMapInJson.getJs().keySet()) {
+            for (ElementInJson elementInJson : this.hashMapInJson.getJs().get(id)) {
+                if (elementInJson.getTag().equals("script") &&
+                    elementInJson.getSrc().equals("")) {
+                    numBlockJS += 1;
+                }
+            }
+        }
+        assertEquals(6, numBlockJS);
 
-    @Test
-    public void testGetInline() throws Exception {
-        assertEquals(5, this.hashMapInJson.getInline().size());
-
+        // Test the number of inline JS
+        int numInlineJS = 0;
         List<Integer> inlineNumbers = new ArrayList<Integer>();
         Integer[] refNumberArray = new Integer[] {1, 2, 2, 1, 1};
         List<Integer> refNumbers = Arrays.asList(refNumberArray);
-        for (String id : this.hashMapInJson.getInline().keySet()) {
-            inlineNumbers.add(hashMap.getInlineJSMap().get(id).size());
+        for (String id : this.hashMapInJson.getJs().keySet()) {
+            if (!hashMapInJson.getJs().get(id).get(0).getEvent().equals("")) {
+                numInlineJS += 1;
+                inlineNumbers.add(hashMap.getInlineJSMap().get(id).size());
+            }
         }
         inlineNumbers.removeAll(refNumbers);
+
+        assertEquals(5, numInlineJS);
         assertEquals(0, inlineNumbers.size());
+    }
+
+    @Test
+    public void testConvertCSS() {
+        this.hashMapInJson.convertCSS(hashMap);
+
+        assertEquals(3, this.hashMapInJson.getCss().size());
+
+        int numInline = 0;
+        for (String id : hashMapInJson.getCss().keySet()) {
+            for (ElementInJson elementInJson : hashMapInJson.getCss().get(id)) {
+                if (!elementInJson.getTag().equals("style")) {
+                    numInline += 1;
+                }
+            }
+        }
+        assertEquals(3, numInline);
     }
 }

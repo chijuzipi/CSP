@@ -1,4 +1,4 @@
-package main.java.org.cspapplier;
+package org.cspapplier;
 
 /**
  * Created by Shuangping on 7/30/2014.

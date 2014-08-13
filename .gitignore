@@ -60,3 +60,11 @@ com_crashlytics_export_strings.xml
 
 #zip file
 *.zip
+
+# For Vim
+[._]*.s[a-w][a-z]
+[._]s[a-w][a-z]
+*.un~
+Session.vim
+.netrwhist
+*~

@@ -1,9 +1,8 @@
-package main.java.org.cspapplier;
+package org.cspapplier;
 
-import main.java.org.cspapplier.json.HashMapInJson;
-import main.java.org.cspapplier.json.JsonAnalyzer;
-import main.java.org.cspapplier.json.JsonWriter;
-import main.java.org.cspapplier.util.SHAHash;
+import org.cspapplier.json.HashMapInJson;
+import org.cspapplier.json.JsonAnalyzer;
+import org.cspapplier.json.JsonWriter;
 
 /**
  *  CSPApplier.java
@@ -14,11 +13,12 @@ import main.java.org.cspapplier.util.SHAHash;
 public class CSPApplier {
     public static void main(String[] args) throws Exception {
         String fileName = "demo/index.html";
-        String hashURL = SHAHash.getHashCode("test.com");
+        String url = "www.test.com";
 
         // Generate elements for external / block / inline JS
-        URLContentAnalyzer getURL = new URLContentAnalyzer(fileName);
+        URLContentAnalyzer getURL = new URLContentAnalyzer(fileName, url);
         getURL.generateJSElements();
+        getURL.generateCSSElements();
 
         /*
          * Generate HashMaps for external / block / inline JS
@@ -26,47 +26,41 @@ public class CSPApplier {
          * - Value: the Elements or Array<ElementEventBinder> object
         */
         HashMapGenerator elementHashMap = new HashMapGenerator();
-        elementHashMap.generateElementHashMap(getURL.getExternalJSElements(),
-                                              getURL.getBlockJSElements(),
-                                              getURL.getInlineJSElementEvents());
+        elementHashMap.generateJSElementHashMap(getURL);
+        elementHashMap.generateCSSElementHashmap(getURL);
 
         /*
          * Generate Json compatible HashMaps for external / block / inline JS
          * - Key: the SHA1 hash of the JS content
          * - Value: the Array<ElementInJson> object which is Json compatible
         */
-        HashMapInJson jsonFromRequest = new HashMapInJson(elementHashMap.getExternalJSMap(),
-                                                          elementHashMap.getBlockJSMap(),
-                                                          elementHashMap.getInlineJSMap());
+        HashMapInJson jsonFromRequest = new HashMapInJson();
+        jsonFromRequest.convertJS(elementHashMap);
+        jsonFromRequest.convertCSS(elementHashMap);
 
-        if (JsonAnalyzer.isLocalJsonExist(hashURL)) {
-        	System.out.println("local template already exist!");
-            HashMapInJson jsonFromLocal = JsonAnalyzer.jsonFromFile(hashURL);
+        if (JsonAnalyzer.isLocalJsonExist(getURL.getHashURL())) {
+        	System.out.println("Local template already exist!");
+            HashMapInJson jsonFromLocal = JsonAnalyzer.jsonFromFile(getURL.getHashURL());
             JsonAnalyzer jsonAnalyzer = new JsonAnalyzer(jsonFromRequest, jsonFromLocal);
 
-            // Update the local json
+            // Update the local json and the HashMaps containing elements.
             if (!jsonAnalyzer.isEmpty()) {
                 jsonAnalyzer.updateLocalJson(jsonFromLocal);
-                JsonWriter jsonWriter = new JsonWriter(jsonFromLocal, hashURL);
+                JsonWriter jsonWriter = new JsonWriter(jsonFromLocal, getURL.getHashURL());
                 jsonWriter.write();
-                elementHashMap.filterHashMap(jsonAnalyzer.getExternalComparisonResult(),
-                							  jsonAnalyzer.getBlockComparisonResult(),
-                							  jsonAnalyzer.getInlineComparisonResult());
+
+                jsonAnalyzer.filterHashMap(elementHashMap);
             }
 
-
         } else {
-        	System.out.println("local template does not exist, this is the samping!");
-            JsonWriter jsonWriter = new JsonWriter(jsonFromRequest, hashURL);
+        	System.out.println("Local template does not exist! Generating new template...");
+            JsonWriter jsonWriter = new JsonWriter(jsonFromRequest, getURL.getHashURL());
             jsonWriter.write();
-            // FIXME: Generate HTML directly using HashMaps from elementHashMap
         }
         
-        HTMLandJSGenerator htmlGen = new HTMLandJSGenerator(elementHashMap.getBlockJSMap(),
-        										  elementHashMap.getInlineJSMap(),
-        										  fileName);
-        htmlGen.generateFile();
-    
+        URLContentGenerator htmlGen = new URLContentGenerator(getURL, elementHashMap);
+        htmlGen.generateJS();
+        htmlGen.generateCSS();
+        htmlGen.generateHTML();
     }
-
 }

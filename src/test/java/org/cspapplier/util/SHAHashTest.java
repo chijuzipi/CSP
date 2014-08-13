@@ -1,7 +1,6 @@
-package test.java.org.cspapplier.util;
+package org.cspapplier.util;
 
 import org.junit.Test;
-import main.java.org.cspapplier.util.*;
 
 import static org.junit.Assert.assertEquals;
 

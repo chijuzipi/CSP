@@ -1,8 +1,6 @@
-package test.java.org.cspapplier.json;
+package org.cspapplier.json;
 
-import main.java.org.cspapplier.util.ElementEventBinder;
-import main.java.org.cspapplier.*;
-import main.java.org.cspapplier.json.*;
+import org.cspapplier.util.ElementEventBinder;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;

@@ -1,6 +1,7 @@
-package main.java.org.cspapplier.json;
+package org.cspapplier.json;
 
-import main.java.org.cspapplier.util.ElementEventBinder;
+import org.cspapplier.HashMapGenerator;
+import org.cspapplier.util.ElementEventBinder;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
@@ -10,7 +11,7 @@ import java.util.HashMap;
 /**
  * HashMapInJson.java
  *
- * Contains HashMaps for external/block/inline scripts.
+ * Contains HashMaps for js/css/inline scripts.
  * - key: ID hashed from the JS / CSS content.
  * - value: ArrayList of ElementInJson (Simplified description of the elements).
  * - Can be directly convert to json string.
@@ -18,65 +19,60 @@ import java.util.HashMap;
  */
 
 public class HashMapInJson {
-    private HashMap<String, ArrayList<ElementInJson>> external;
-    private HashMap<String, ArrayList<ElementInJson>> block;
-    private HashMap<String, ArrayList<ElementInJson>> inline;
+    private HashMap<String, ArrayList<ElementInJson>> js;
+    private HashMap<String, ArrayList<ElementInJson>> css;
 
     public HashMapInJson() {
-        this.external = new HashMap<String, ArrayList<ElementInJson>>();
-        this.block = new HashMap<String, ArrayList<ElementInJson>>();
-        this.inline = new HashMap<String, ArrayList<ElementInJson>>();
+        this.js = new HashMap<String, ArrayList<ElementInJson>>();
+        this.css = new HashMap<String, ArrayList<ElementInJson>>();
     }
 
-    public HashMapInJson(HashMap<String, Elements> externalJS,
-                         HashMap<String, Elements> blockJS,
-                         HashMap<String, ArrayList<ElementEventBinder>> inlineJS) {
-        this.external = new HashMap<String, ArrayList<ElementInJson>>();
-        this.block = new HashMap<String, ArrayList<ElementInJson>>();
-        this.inline = new HashMap<String, ArrayList<ElementInJson>>();
+    public void convertJS(HashMapGenerator hashMapGenerator) {
 
-        ElementInJson elementInJson;
-
-        ArrayList<ElementInJson> externalElements;
-        for (String identity : externalJS.keySet()) {
-            externalElements = new ArrayList<ElementInJson>();
-            for (Element element : externalJS.get(identity)) {
-                elementInJson = new ElementInJson(element);
-                externalElements.add(elementInJson);
+        for (String identity : hashMapGenerator.getExternalJSMap().keySet()) {
+            this.js.put(identity, new ArrayList<ElementInJson>());
+            for (Element element : hashMapGenerator.getExternalJSMap().get(identity)) {
+                this.js.get(identity).add(new ElementInJson(element));
             }
-            this.external.put(identity, externalElements);
         }
 
-        ArrayList<ElementInJson> blockElements;
-        for (String identity : blockJS.keySet()) {
-            blockElements = new ArrayList<ElementInJson>();
-            for (Element element : blockJS.get(identity)) {
-                elementInJson = new ElementInJson(element);
-                blockElements.add(elementInJson);
+        for (String identity : hashMapGenerator.getBlockJSMap().keySet()) {
+            this.js.put(identity, new ArrayList<ElementInJson>());
+            for (Element element : hashMapGenerator.getBlockJSMap().get(identity)) {
+                this.js.get(identity).add(new ElementInJson(element));
             }
-            this.block.put(identity, blockElements);
         }
 
-        ArrayList<ElementInJson> inlineElements;
-        for (String identity : inlineJS.keySet()) {
-            inlineElements = new ArrayList<ElementInJson>();
-            for (ElementEventBinder elementEvent : inlineJS.get(identity)) {
-                elementInJson = new ElementInJson(elementEvent);
-                inlineElements.add(elementInJson);
+        for (String identity : hashMapGenerator.getInlineJSMap().keySet()) {
+            this.js.put(identity, new ArrayList<ElementInJson>());
+            for (ElementEventBinder elementEvent : hashMapGenerator.getInlineJSMap().get(identity)) {
+                this.js.get(identity).add(new ElementInJson(elementEvent));
             }
-            this.inline.put(identity, inlineElements);
         }
     }
 
-    public HashMap<String, ArrayList<ElementInJson>> getExternal() {
-        return this.external;
+    public void convertCSS(HashMapGenerator hashMapGenerator) {
+        for (String identity : hashMapGenerator.getBlockCSSMap().keySet()) {
+            this.css.put(identity, new ArrayList<ElementInJson>());
+            for (Element element : hashMapGenerator.getBlockCSSMap().get(identity)) {
+                this.css.get(identity).add(new ElementInJson(element));
+            }
+        }
+
+        for (String identity : hashMapGenerator.getInlineCSSMap().keySet()) {
+            this.css.put(identity, new ArrayList<ElementInJson>());
+            for (Element element : hashMapGenerator.getInlineCSSMap().get(identity)) {
+                this.css.get(identity).add(new ElementInJson(element));
+            }
+        }
     }
 
-    public HashMap<String, ArrayList<ElementInJson>> getBlock() {
-        return this.block;
+    public HashMap<String, ArrayList<ElementInJson>> getJs() {
+        return this.js;
     }
 
-    public HashMap<String, ArrayList<ElementInJson>> getInline() {
-        return this.inline;
+    public HashMap<String, ArrayList<ElementInJson>> getCss() {
+        return this.css;
     }
+
 }

@@ -1,4 +1,4 @@
-package main.java.org.cspapplier.json;
+package org.cspapplier.json;
 
 import com.google.gson.Gson;
 

@@ -1,11 +1,10 @@
-package test.java.org.cspapplier;
-
-import main.java.org.cspapplier.*;
+package org.cspapplier;
 
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -18,29 +17,31 @@ public class HashMapGeneratorTest {
     private HashMapGenerator hashMap;
 
     @Before
-    public void initialize() throws IOException {
+    public void initialize() throws IOException, NoSuchAlgorithmException {
         String fileName = "demo/index.html";
-        this.getURL = new URLContentAnalyzer(fileName);
+        String url = "www.test.com";
+        this.getURL = new URLContentAnalyzer(fileName, url);
         getURL.generateJSElements();
+        getURL.generateCSSElements();
 
         this.hashMap = new HashMapGenerator();
     }
 
     @Test
     public void testGenerateExternalHashMap() throws Exception {
-        hashMap.generateExternalHashMap(getURL.getExternalJSElements());
+        hashMap.generateExternalJSHashMap(getURL.getExternalJSElements());
         assertEquals(4, hashMap.getExternalJSMap().size());
     }
 
     @Test
     public void testGenerateBlockHashMap() throws Exception {
-        hashMap.generateBlockHashMap(getURL.getBlockJSElements());
-        assertEquals(5, hashMap.getBlockJSMap().size());
+        hashMap.generateBlockJSHashMap(getURL.getBlockJSElements());
+        assertEquals(6, hashMap.getBlockJSMap().size());
     }
 
     @Test
     public void testGenerateInlineHashMap() throws Exception {
-        hashMap.generateInlineHashMap(getURL.getInlineJSElementEvents());
+        hashMap.generateInlineJSHashMap(getURL.getInlineJSElementEvents());
         assertEquals(5, hashMap.getInlineJSMap().size());
 
         List<Integer> inlineNumbers = new ArrayList<Integer>();
@@ -51,5 +52,19 @@ public class HashMapGeneratorTest {
         }
         inlineNumbers.removeAll(refNumbers);
         assertEquals(0, inlineNumbers.size());
+    }
+
+    @Test
+    public void testGenerateCSSElementsHashMap() throws Exception {
+        hashMap.generateCSSElementHashmap(getURL);
+
+        assertEquals(1, hashMap.getBlockCSSMap().size());
+        assertEquals(2, hashMap.getInlineCSSMap().size());
+
+        int numInline = 0;
+        for (String id : hashMap.getInlineCSSMap().keySet()) {
+            numInline += hashMap.getInlineCSSMap().get(id).size();
+        }
+        assertEquals(3, numInline);
     }
 }
