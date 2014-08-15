@@ -3,18 +3,27 @@
   <head>
     <title>Bootstrap 101 Template</title>
     <!-- Bootstrap -->
+    <style>
+    hr {color: sienna;}
+	  p {color: sienna; margin-left: 20px;}
+	</style>
+
+  </head>
+  <body>
     <script  type='text/javascript'>
     function myfunction1()
         {
             alert("button1");
         }
     </script>
+    <p>
     <script  type='text/javascript'>
     function myfunction2()
         {
             alert("button2");
         }
     </script>
+    </p>
     <script  type='text/javascript'>
     function myfunction3()
         {
@@ -24,37 +33,15 @@
     <script>
     function myfunction4()
         {
-            alert("form onsubmit4!");
+            alert("button4");
         }
     </script>
     <script>
     function myfunction5()
         {
-            alert("form onsubmit5!");
+            alert("button5!");
         }
     </script>
-    <style>
-    hr {color: sienna;}
-	  p {margin-left: 20px;}
-	</style>
-
-  </head>
-  <body>
-    <h1>Hello, world!</h1>
-    <button id="button1" class="button1" onclick="myfunction1()">button1</button>
-    <button  class="button2" onclick="myfunction2()">button2</button>
-    <button id="button3" class="button3" onclick="myfunction3()">button3</button>
-    <form action="#" method="get" onsubmit="myfunction4()">
-	<p style="color:sienna;margin-left:20px;">This is a paragraph.</p>
-    <p>First name: <input type="text" name="fname" /></p>
-    <p>Last name: <input type="text" name="lname" /></p>
-    <input type="submit" value="Submit" />
-    </form>
-    <form id="form1" action="#1" method="get" onsubmit="myfunction5()">
-    <p>First name: <input type="text" name="fname" /></p>
-    <p>Last name: <input type="text" name="lname" /></p>
-    <input type="submit" value="Submit" />
-    </form>
-
+  
   </body>
 </html>
