@@ -124,12 +124,7 @@ public class ElementInJson {
     
     public String xpath(Element x){
     	String result = getXpath(x);
-    	System.out.println(result);
-    	System.out.println("the node is " + x.toString());
-    	System.out.println("");
-    	System.out.println("");
-    	System.out.println("");
-    	return getXpath(x);
+    	return result;
     }
 
     public void setXpath(String xpath) {

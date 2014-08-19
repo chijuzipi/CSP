@@ -3,8 +3,6 @@ package org.cspapplier.json;
 import org.cspapplier.HashMapGenerator;
 import org.cspapplier.util.ElementEventBinder;
 import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -52,6 +50,13 @@ public class HashMapInJson {
     }
 
     public void convertCSS(HashMapGenerator hashMapGenerator) {
+        for (String identity : hashMapGenerator.getExternalCSSMap().keySet()) {
+            this.css.put(identity, new ArrayList<ElementInJson>());
+            for (Element element : hashMapGenerator.getExternalCSSMap().get(identity)) {
+                this.css.get(identity).add(new ElementInJson(element));
+            }
+        }
+
         for (String identity : hashMapGenerator.getBlockCSSMap().keySet()) {
             this.css.put(identity, new ArrayList<ElementInJson>());
             for (Element element : hashMapGenerator.getBlockCSSMap().get(identity)) {

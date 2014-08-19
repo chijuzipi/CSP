@@ -24,6 +24,7 @@ public class URLContentAnalyzer
 
     private Elements blockCSSElements;
     private Elements inlineCSSElements;
+    private Elements externalCSSElements;
 
     public URLContentAnalyzer(String fileName, String url) throws IOException, NoSuchAlgorithmException {
         inlineJSElementEvents = new ArrayList<ElementEventBinder>();
@@ -75,8 +76,13 @@ public class URLContentAnalyzer
     }
 
     public void generateCSSElements() {
+    	generateExternalCSSElements();
         generateBlockCSSElements();
         generateInlineCSSElements();
+    }
+    
+    public void generateExternalCSSElements(){
+    	this.externalCSSElements = inputDOM.select("link[href$=.css]");
     }
 
     public void generateBlockCSSElements() {
@@ -121,6 +127,14 @@ public class URLContentAnalyzer
 
     public void setHashURL(String hashURL) {
         this.hashURL = hashURL;
+    }
+    
+    public Elements getExternalCSSElements(){
+    	return externalCSSElements;
+    }
+    
+    public void setExternalCSSElements(Elements externalCSSElements){
+    	this.externalCSSElements = externalCSSElements;
     }
 
     public Elements getBlockCSSElements() {

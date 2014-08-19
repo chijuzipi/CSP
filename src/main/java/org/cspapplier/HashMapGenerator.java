@@ -25,6 +25,7 @@ public class HashMapGenerator {
     private HashMap<String, Elements> blockJSMap;
     private HashMap<String, ArrayList<ElementEventBinder>> inlineJSMap;
 
+    private HashMap<String, Elements> externalCSSMap;
     private HashMap<String, Elements> blockCSSMap;
     private HashMap<String, Elements> inlineCSSMap;
 
@@ -33,6 +34,7 @@ public class HashMapGenerator {
         this.blockJSMap = new HashMap<String, Elements>();
         this.inlineJSMap = new HashMap<String, ArrayList<ElementEventBinder>>();
 
+        this.externalCSSMap = new HashMap<String, Elements>();
         this.blockCSSMap = new HashMap<String, Elements>();
         this.inlineCSSMap = new HashMap<String, Elements>();
     }
@@ -84,6 +86,14 @@ public class HashMapGenerator {
 
     public void generateCSSElementHashmap(URLContentAnalyzer urlContentAnalyzer) throws NoSuchAlgorithmException {
         String identity;
+        for (Element element : urlContentAnalyzer.getExternalCSSElements()) {
+            identity = SHAHash.getHashCode("externalCSS" + element.data());
+            if (this.externalCSSMap.get(identity) == null) {
+                this.externalCSSMap.put(identity, new Elements());
+            }
+            this.externalCSSMap.get(identity).add(element);
+        }
+
         for (Element element : urlContentAnalyzer.getBlockCSSElements()) {
             identity = SHAHash.getHashCode("blockCSS" + element.data());
             if (this.blockCSSMap.get(identity) == null) {
@@ -125,6 +135,13 @@ public class HashMapGenerator {
         this.inlineJSMap = inlineJSMap;
     }
 
+    public HashMap<String, Elements> getExternalCSSMap() {
+        return externalCSSMap;
+    }
+
+    public void setExternalCSSMap(HashMap<String, Elements> externalCSSMap) {
+        this.externalCSSMap = externalCSSMap;
+    }
 
     public HashMap<String, Elements> getBlockCSSMap() {
         return blockCSSMap;

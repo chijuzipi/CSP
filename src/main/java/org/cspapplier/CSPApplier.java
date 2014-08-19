@@ -12,8 +12,12 @@ import org.cspapplier.json.JsonWriter;
 
 public class CSPApplier {
     public static void main(String[] args) throws Exception {
-        String fileName = "demo/index.html";
-        String url = "www.test.com";
+    	if(args.length != 2){
+    		System.out.print("Usage: Java CSPApplier [.html file path] [url]");
+    		return;
+    	}
+        String fileName = args[0];
+        String url = args[1];
 
         // Generate elements for external / block / inline JS
         URLContentAnalyzer getURL = new URLContentAnalyzer(fileName, url);
@@ -48,7 +52,8 @@ public class CSPApplier {
                 jsonAnalyzer.updateLocalJson(jsonFromLocal);
                 JsonWriter jsonWriter = new JsonWriter(jsonFromLocal, getURL.getHashURL());
                 jsonWriter.write();
-
+                
+                //the hash maps in HashMapGenerator is updated by the comparison result 
                 jsonAnalyzer.filterHashMap(elementHashMap);
             }
 
@@ -62,5 +67,10 @@ public class CSPApplier {
         htmlGen.generateJS();
         htmlGen.generateCSS();
         htmlGen.generateHTML();
+        
+        CSPGenerator cspGen = new CSPGenerator(getURL);
+        String cspHeader = cspGen.generateCSPHeader();
+        System.out.print("CSP Header is : " + cspHeader);
+        
     }
 }
