@@ -24,6 +24,9 @@ hs_err_pid*
 !lib/google-gson/*.jar
 !lib/hamcrest/*.jar
 
+#whitelist for runnable jar
+!runnable/*.jar
+
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm
 
 ## Directory-based project format
