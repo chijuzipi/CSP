@@ -13,7 +13,7 @@ import org.cspapplier.json.JsonWriter;
 public class CSPApplier {
     public static void main(String[] args) throws Exception {
     	if(args.length != 2){
-    		System.out.print("Usage: Java CSPApplier [.html file path] [url]");
+    		System.out.println("Usage: Java CSPApplier [.html file path] [url]");
     		return;
     	}
         String fileName = args[0];
@@ -70,7 +70,6 @@ public class CSPApplier {
         
         CSPGenerator cspGen = new CSPGenerator(getURL);
         String cspHeader = cspGen.generateCSPHeader();
-        System.out.print("CSP Header is : " + cspHeader);
-        
+        System.out.println("CSP Header is : " + cspHeader); 
     }
 }
