@@ -9,7 +9,7 @@ import java.util.HashMap;
  *  Store the comparison result of the JsonAnalyzer for further processing and report.
  *  - wariningList: a HashMap containing the IDs which exist for both request json and
  *    local json, but have different elements in the HTML.
- *  - blackList: an ArrayList containing the unknwon IDs appearing in the request json.
+ *  - blackList: an HashMap containing the unknown IDs appearing in the request json.
  *
  */
 public class ComparisonResult {
