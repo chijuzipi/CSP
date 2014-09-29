@@ -23,7 +23,7 @@ public class ElementInJson {
         this.className = element.className();
         this.src = element.attr("src");
         this.event = "";
-        this.xpath = xpath(element);
+        this.xpath = this.findXpath(element);
     }
 
     public ElementInJson(ElementEventBinder elementEvent) {
@@ -35,7 +35,7 @@ public class ElementInJson {
         this.className = element.className();
         this.src = "";
         this.event = event;
-        this.xpath = getXPath(element);
+        this.xpath = this.findXpath(element);
     }
 
     @Override
@@ -69,9 +69,12 @@ public class ElementInJson {
         return isEqual;
     }
 
-    // FIXME: Complete the getXPath function
-    private String getXPath(Element element) {
-        return "";
+    public String findXpath(Element element) {
+        Element parent = element.parent();
+        if (parent == null){
+            return "//Document/";
+        }
+        return findXpath(parent) + element.tag()+ "[" + element.elementSiblingIndex() + "]" + "/";
     }
 
     public String getTag() {
@@ -114,17 +117,8 @@ public class ElementInJson {
         this.event = event;
     }
 
-    public String getXpath(Element x) {
-    	Element parent = x.parent();
-    	if (parent == null){
-    		return "//Document/";
-    	}
-        return getXpath(parent) + x.tag()+ "[" + x.elementSiblingIndex() + "]" + "/";
-    }
-    
-    public String xpath(Element x){
-    	String result = getXpath(x);
-    	return result;
+    public String getXpath() {
+        return xpath;
     }
 
     public void setXpath(String xpath) {

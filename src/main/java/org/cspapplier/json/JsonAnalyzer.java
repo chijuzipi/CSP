@@ -23,7 +23,7 @@ public class JsonAnalyzer {
     private ComparisonResult generateFilterList(HashMap<String, ArrayList<ElementInJson>> requestHM,
                                                 HashMap<String, ArrayList<ElementInJson>> localHM) {
         HashMap<String, DiffList> warningList = new HashMap<String, DiffList>();
-        ArrayList<String> blackList = new ArrayList<String>();
+        HashMap<String, ArrayList<ElementInJson>> blackList = new HashMap<String, ArrayList<ElementInJson>>();
 
         ArrayList<ElementInJson> elementsInRequestJson;
         ArrayList<ElementInJson> elementsInLocalJson;
@@ -59,7 +59,7 @@ public class JsonAnalyzer {
                     warningList.put(id, diffList);
                 }
             } else {
-                blackList.add(id);
+                blackList.put(id, requestHM.get(id));
             }
         }
 
@@ -71,14 +71,27 @@ public class JsonAnalyzer {
                this.cssComparisonResult.isEmpty();
     }
 
-    public void updateLocalJson(HashMapInJson localJson) {
+    public void updateLocalJson(HashMapInJson localJson, boolean isSampling) {
         HashMap<String, DiffList> jsWarningList = jsComparisonResult.getWarningList();
         for (String id : jsWarningList.keySet()) {
             localJson.getJs().get(id).addAll(jsWarningList.get(id).getMissList());
         }
+
         HashMap<String, DiffList> cssWarningList = cssComparisonResult.getWarningList();
         for (String id : cssWarningList.keySet()) {
             localJson.getCss().get(id).addAll(cssWarningList.get(id).getMissList());
+        }
+
+        if (isSampling) {
+            HashMap<String, ArrayList<ElementInJson>> jsBlackList = jsComparisonResult.getBlackList();
+            for (String id : jsBlackList.keySet()) {
+                localJson.getJs().put(id, jsBlackList.get(id));
+            }
+
+            HashMap<String, ArrayList<ElementInJson>> cssBlackList = cssComparisonResult.getBlackList();
+            for (String id : cssBlackList.keySet()) {
+                localJson.getCss().put(id, cssBlackList.get(id));
+            }
         }
     }
 
@@ -105,13 +118,13 @@ public class JsonAnalyzer {
     }
 
     public void filterHashMap(HashMapGenerator hashMaps) {
-        for (String key : this.jsComparisonResult.getBlackList()) {
+        for (String key : this.jsComparisonResult.getBlackList().keySet()) {
             hashMaps.getExternalJSMap().remove(key);
             hashMaps.getBlockJSMap().remove(key);
             hashMaps.getInlineJSMap().remove(key);
         }
 
-        for (String key : this.cssComparisonResult.getBlackList()) {
+        for (String key : this.cssComparisonResult.getBlackList().keySet()) {
             hashMaps.getBlockCSSMap().remove(key);
             hashMaps.getInlineCSSMap().remove(key);
         }

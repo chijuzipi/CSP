@@ -2,7 +2,6 @@ package org.cspapplier.json;
 
 import org.cspapplier.HashMapGenerator;
 import org.cspapplier.URLContentAnalyzer;
-import org.jsoup.nodes.Element;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -19,7 +18,7 @@ public class HashMapInJsonTest {
 
     @Before
     public void initialize() throws Exception {
-        String fileName = "demo/index.html";
+        String fileName = "src/test/resources/index.html";
         String url = "www.test.com";
         URLContentAnalyzer getURL = new URLContentAnalyzer(fileName, url);
         getURL.generateJSElements();
@@ -27,7 +26,7 @@ public class HashMapInJsonTest {
 
         this.hashMap = new HashMapGenerator();
         this.hashMap.generateJSElementHashMap(getURL);
-        this.hashMap.generateCSSElementHashmap(getURL);
+        this.hashMap.generateCSSElementHashMap(getURL);
 
         this.hashMapInJson = new HashMapInJson();
     }
@@ -90,7 +89,7 @@ public class HashMapInJsonTest {
     public void testConvertCSS() {
         this.hashMapInJson.convertCSS(hashMap);
 
-        assertEquals(3, this.hashMapInJson.getCss().size());
+        assertEquals(4, this.hashMapInJson.getCss().size());
 
         int numInline = 0;
         for (String id : hashMapInJson.getCss().keySet()) {

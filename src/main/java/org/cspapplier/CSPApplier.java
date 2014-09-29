@@ -12,12 +12,14 @@ import org.cspapplier.json.JsonWriter;
 
 public class CSPApplier {
     public static void main(String[] args) throws Exception {
-    	if(args.length != 2){
-    		System.out.println("Usage: Java CSPApplier [.html file path] [url]");
+    	if(args.length != 3) {
+    		System.out.println("Usage: Java CSPApplier [.html file path] [url] [isSampleMode = 0 | 1]");
     		return;
     	}
+
         String fileName = args[0];
         String url = args[1];
+        boolean isSample = (Integer.parseInt(args[2]) != 0);
 
         // Generate elements for external / block / inline JS
         URLContentAnalyzer getURL = new URLContentAnalyzer(fileName, url);
@@ -31,7 +33,7 @@ public class CSPApplier {
         */
         HashMapGenerator elementHashMap = new HashMapGenerator();
         elementHashMap.generateJSElementHashMap(getURL);
-        elementHashMap.generateCSSElementHashmap(getURL);
+        elementHashMap.generateCSSElementHashMap(getURL);
 
         /*
          * Generate Json compatible HashMaps for external / block / inline JS
@@ -49,11 +51,10 @@ public class CSPApplier {
 
             // Update the local json and the HashMaps containing elements.
             if (!jsonAnalyzer.isEmpty()) {
-                jsonAnalyzer.updateLocalJson(jsonFromLocal);
+                jsonAnalyzer.updateLocalJson(jsonFromLocal, isSample);
                 JsonWriter jsonWriter = new JsonWriter(jsonFromLocal, getURL.getHashURL());
                 jsonWriter.write();
-                
-                //the hash maps in HashMapGenerator is updated by the comparison result 
+
                 jsonAnalyzer.filterHashMap(elementHashMap);
             }
 

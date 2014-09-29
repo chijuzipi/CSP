@@ -20,7 +20,7 @@ public class JsonWriterTest {
 
         HashMapGenerator hashMap = new HashMapGenerator();
         hashMap.generateJSElementHashMap(getURL);
-        hashMap.generateCSSElementHashmap(getURL);
+        hashMap.generateCSSElementHashMap(getURL);
 
         this.hashMapInJson = new HashMapInJson();
         this.hashMapInJson.convertJS(hashMap);

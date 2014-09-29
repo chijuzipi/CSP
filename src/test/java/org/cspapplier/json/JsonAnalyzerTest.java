@@ -34,7 +34,7 @@ public class JsonAnalyzerTest {
 
         this.hashMap = new HashMapGenerator();
         this.hashMap.generateJSElementHashMap(getURL);
-        this.hashMap.generateCSSElementHashmap(getURL);
+        this.hashMap.generateCSSElementHashMap(getURL);
 
         HashMapInJson hashMapInJson = new HashMapInJson();
         hashMapInJson.convertJS(this.hashMap);
@@ -60,11 +60,11 @@ public class JsonAnalyzerTest {
 
     @Test
     public void testGetJSComparisonResult() throws Exception {
-        ArrayList<String> blackList = this.jsonAnalyzer.getJsComparisonResult().getBlackList();
+        HashMap<String, ArrayList<ElementInJson>> blackList = this.jsonAnalyzer.getJsComparisonResult().getBlackList();
         HashMap<String, DiffList> warningList = this.jsonAnalyzer.getJsComparisonResult().getWarningList();
 
         assertEquals(1, blackList.size());
-        assertTrue(blackList.contains("aac7b7bc5c401fa96fd1c403bfcd257e5c5b900b"));
+        assertTrue(blackList.keySet().contains("aac7b7bc5c401fa96fd1c403bfcd257e5c5b900b"));
 
         assertEquals(2, warningList.size());
 
@@ -86,11 +86,11 @@ public class JsonAnalyzerTest {
 
     @Test
     public void testGetCSSComparisonResult() throws Exception {
-        ArrayList<String> blackList = this.jsonAnalyzer.getCssComparisonResult().getBlackList();
+        HashMap<String, ArrayList<ElementInJson>> blackList = this.jsonAnalyzer.getCssComparisonResult().getBlackList();
         HashMap<String, DiffList> warningList = this.jsonAnalyzer.getCssComparisonResult().getWarningList();
 
         assertEquals(1, blackList.size());
-        assertTrue(blackList.contains("a090361fcef19a9ac19e96fa40083a1a89182621"));
+        assertTrue(blackList.keySet().contains("a090361fcef19a9ac19e96fa40083a1a89182621"));
 
         assertEquals(1, warningList.size());
 
@@ -109,7 +109,7 @@ public class JsonAnalyzerTest {
 
     @Test
     public void testUpdateLocalJson() {
-        this.jsonAnalyzer.updateLocalJson(this.localJson);
+        this.jsonAnalyzer.updateLocalJson(this.localJson, false);
 
         assertEquals(15, localJson.getJs().size());
         assertEquals(3, this.localJson.getJs().get("254cef50c5977a86c69a9f56ffee64496ddf99b5").size());

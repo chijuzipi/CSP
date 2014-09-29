@@ -15,7 +15,7 @@ public class URLContentAnalyzerTest {
 
     @Before
     public void initialize() throws IOException, NoSuchAlgorithmException {
-        String fileName = "demo/index.html";
+        String fileName = "src/test/resources/index.html";
         String url = "www.test.com";
         this.getURL = new URLContentAnalyzer(fileName, url);
     }

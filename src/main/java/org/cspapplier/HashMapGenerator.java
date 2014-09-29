@@ -84,7 +84,7 @@ public class HashMapGenerator {
         }
     }
 
-    public void generateCSSElementHashmap(URLContentAnalyzer urlContentAnalyzer) throws NoSuchAlgorithmException {
+    public void generateCSSElementHashMap(URLContentAnalyzer urlContentAnalyzer) throws NoSuchAlgorithmException {
         String identity;
         for (Element element : urlContentAnalyzer.getExternalCSSElements()) {
             identity = SHAHash.getHashCode("externalCSS" + element.data());

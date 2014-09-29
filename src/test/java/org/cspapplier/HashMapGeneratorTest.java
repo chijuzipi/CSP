@@ -18,7 +18,7 @@ public class HashMapGeneratorTest {
 
     @Before
     public void initialize() throws IOException, NoSuchAlgorithmException {
-        String fileName = "demo/index.html";
+        String fileName = "src/test/resources/index.html";
         String url = "www.test.com";
         this.getURL = new URLContentAnalyzer(fileName, url);
         getURL.generateJSElements();
@@ -56,7 +56,7 @@ public class HashMapGeneratorTest {
 
     @Test
     public void testGenerateCSSElementsHashMap() throws Exception {
-        hashMap.generateCSSElementHashmap(getURL);
+        hashMap.generateCSSElementHashMap(getURL);
 
         assertEquals(1, hashMap.getBlockCSSMap().size());
         assertEquals(2, hashMap.getInlineCSSMap().size());

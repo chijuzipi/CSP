@@ -25,7 +25,7 @@ public class URLContentGeneratorTest {
 
         HashMapGenerator hashMap = new HashMapGenerator();
         hashMap.generateJSElementHashMap(getURL);
-        hashMap.generateCSSElementHashmap(getURL);
+        hashMap.generateCSSElementHashMap(getURL);
 
         this.urlContentGenerator = new URLContentGenerator(getURL, hashMap);
     }

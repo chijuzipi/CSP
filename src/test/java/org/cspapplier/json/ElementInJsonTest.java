@@ -15,8 +15,7 @@ public class ElementInJsonTest {
     private ElementInJson elementInJson2;
     private ElementInJson elementInJson3;
 
-
-    String html = "<!DOCTYPE html><html><body>\n" +
+    String html = "<!DOCTYPE html><html><head></head><body>\n" +
                   "<p id=test class=testClass onclick=\"test()\">My first paragraph.</p>\n" +
                   "</body></html>";
     @Before
@@ -48,7 +47,7 @@ public class ElementInJsonTest {
         assertEquals("testClass", elementInJson1.getClassName());
         assertEquals("", elementInJson1.getSrc());
         assertEquals("", elementInJson1.getEvent());
-        assertEquals("", elementInJson1.getXpath());
+        assertEquals("//Document/html[0]/body[1]/p[0]/", elementInJson1.getXpath());
     }
 
     @Test
@@ -58,6 +57,6 @@ public class ElementInJsonTest {
         assertEquals("testClass", elementInJson3.getClassName());
         assertEquals("", elementInJson3.getSrc());
         assertEquals("onclick", elementInJson3.getEvent());
-        assertEquals("", elementInJson3.getXpath());
+        assertEquals("//Document/html[0]/body[1]/p[0]/", elementInJson3.getXpath());
     }
 }

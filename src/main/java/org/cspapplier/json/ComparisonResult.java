@@ -14,14 +14,15 @@ import java.util.HashMap;
  */
 public class ComparisonResult {
     private HashMap<String, DiffList> warningList;
-    private ArrayList<String> blackList;
+    private HashMap<String, ArrayList<ElementInJson>> blackList;
 
     public ComparisonResult() {
         this.warningList = new HashMap<String, DiffList>();
-        this.blackList = new ArrayList<String>();
+        this.blackList = new HashMap<String, ArrayList<ElementInJson>>();
     }
 
-    public ComparisonResult(HashMap<String, DiffList> warningList, ArrayList<String> blackList) {
+    public ComparisonResult(HashMap<String, DiffList> warningList,
+                            HashMap<String, ArrayList<ElementInJson>> blackList) {
         this.warningList = warningList;
         this.blackList = blackList;
     }
@@ -38,11 +39,11 @@ public class ComparisonResult {
         this.warningList = warningList;
     }
 
-    public ArrayList<String> getBlackList() {
+    public HashMap<String, ArrayList<ElementInJson>> getBlackList() {
         return blackList;
     }
 
-    public void setBlackList(ArrayList<String> blackList) {
+    public void setBlackList(HashMap<String, ArrayList<ElementInJson>> blackList) {
         this.blackList = blackList;
     }
 }
