@@ -71,7 +71,7 @@ public class CSPApplier {
         htmlGen.generateHTML();
         
         CSPGenerator cspGen = new CSPGenerator(getURL);
-        String cspHeader = cspGen.generateCSPHeader();
-        System.out.println("CSP Header is : " + cspHeader); 
+        cspGen.generateCSPHeader();
+        cspGen.write();
     }
 }
