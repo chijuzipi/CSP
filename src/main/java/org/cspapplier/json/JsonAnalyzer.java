@@ -95,13 +95,13 @@ public class JsonAnalyzer {
         }
     }
 
-    public static boolean isLocalJsonExist(String hashURL) {
-        File localJson = new File(hashURL + ".json");
+    public static boolean isLocalJsonExist(String hashURL, String outputPath) {
+        File localJson = new File(outputPath + hashURL + ".json");
         return localJson.exists();
     }
 
-    public static HashMapInJson jsonFromFile(String hashURL) throws IOException {
-        String inputFileName = hashURL + ".json";
+    public static HashMapInJson jsonFromFile(String hashURL, String outputPath) throws IOException {
+        String inputFileName = outputPath + hashURL + ".json";
         BufferedReader inputJsonBuffer = new BufferedReader(new FileReader(inputFileName));
         try {
             String inputJson;

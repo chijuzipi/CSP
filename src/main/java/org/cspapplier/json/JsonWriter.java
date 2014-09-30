@@ -18,10 +18,10 @@ public class JsonWriter {
     private String json;
     private String fileName;
 
-    public JsonWriter(HashMapInJson hashMapInJson, String hashURL) {
+    public JsonWriter(HashMapInJson hashMapInJson, String hashURL, String outputPath) {
         Gson gson = new Gson();
         this.json = gson.toJson(hashMapInJson);
-        this.fileName = hashURL + ".json";
+        this.fileName = outputPath + hashURL + ".json";
     }
 
     public void write() throws IOException {

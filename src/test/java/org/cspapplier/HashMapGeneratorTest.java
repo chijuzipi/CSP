@@ -20,7 +20,8 @@ public class HashMapGeneratorTest {
     public void initialize() throws IOException, NoSuchAlgorithmException {
         String fileName = "src/test/resources/index.html";
         String url = "www.test.com";
-        this.getURL = new URLContentAnalyzer(fileName, url);
+        String outputPath = "src/test/resources";
+        this.getURL = new URLContentAnalyzer(fileName, url, outputPath);
         getURL.generateJSElements();
         getURL.generateCSSElements();
 

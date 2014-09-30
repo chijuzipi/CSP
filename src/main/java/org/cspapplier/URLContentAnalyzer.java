@@ -17,6 +17,7 @@ public class URLContentAnalyzer
 {
     private Document inputDOM;
     private String hashURL;
+    private String outputPath;
 
     private Elements externalJSElements;
     private Elements blockJSElements;
@@ -26,13 +27,13 @@ public class URLContentAnalyzer
     private Elements inlineCSSElements;
     private Elements externalCSSElements;
 
-    public URLContentAnalyzer(String fileName, String url) throws IOException, NoSuchAlgorithmException {
+    public URLContentAnalyzer(String fileName, String url, String outputPath) throws IOException, NoSuchAlgorithmException {
         inlineJSElementEvents = new ArrayList<ElementEventBinder>();
 
         // Parse the DOM structure of the input URL content
-
         File inputFile = new File(fileName);
         this.hashURL = SHAHash.getHashCode(url);
+        this.outputPath = completePath(outputPath);
         this.inputDOM = Jsoup.parse(inputFile, "UTF-8");
     }
 
@@ -93,6 +94,11 @@ public class URLContentAnalyzer
         this.inlineCSSElements = inputDOM.select("[style]");
     }
 
+    private String completePath(String path) {
+        char lastChar = path.charAt(path.length() - 1);
+        return path + ((lastChar != '/') ? "/" : "");
+    }
+
     // Getters & Setters
     public Document getInputDOM() {
         return inputDOM;
@@ -128,6 +134,14 @@ public class URLContentAnalyzer
     public void setHashURL(String hashURL) {
         this.hashURL = hashURL;
     }
+
+    public String getOutputPath() {
+        return outputPath;
+    }
+
+    public void setOutputPath(String outputPath) {
+        this.outputPath = outputPath;
+    }
     
     public Elements getExternalCSSElements(){
     	return externalCSSElements;
@@ -152,4 +166,5 @@ public class URLContentAnalyzer
     public void setInlineCSSElements(Elements inlineCSSElements) {
         this.inlineCSSElements = inlineCSSElements;
     }
+
 }

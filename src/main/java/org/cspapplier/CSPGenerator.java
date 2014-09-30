@@ -16,7 +16,7 @@ public class CSPGenerator {
 
     }
     public String generateCSPHeader(){
-        CSPHeader = "Content-Security-Policy: default-src 'self'; script-src 'slef' ";
+        CSPHeader = "Content-Security-Policy: default-src 'self'; script-src 'self' ";
         for (Element y : URLContent.getExternalJSElements())
         {
             //System.out.println(y);

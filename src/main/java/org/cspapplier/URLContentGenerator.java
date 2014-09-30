@@ -37,7 +37,7 @@ public class URLContentGenerator {
     }
     
     public void generateJS() throws IOException, NoSuchAlgorithmException {
-        String fileName = urlContentAnalyzer.getHashURL();
+        String fileName = urlContentAnalyzer.getOutputPath() + urlContentAnalyzer.getHashURL();
         File outputJS= new File(fileName + ".js");
         BufferedWriter bufferJS = new BufferedWriter(new FileWriter(outputJS));
 
@@ -87,7 +87,7 @@ public class URLContentGenerator {
     }
 
     public void generateCSS() throws IOException, NoSuchAlgorithmException {
-        String fileName = urlContentAnalyzer.getHashURL();
+        String fileName = urlContentAnalyzer.getOutputPath() + urlContentAnalyzer.getHashURL();
         File outputCSS = new File(fileName + ".css");
         BufferedWriter bufferCSS = new BufferedWriter(new FileWriter(outputCSS));
 
@@ -122,7 +122,7 @@ public class URLContentGenerator {
     }
 
     public void generateHTML() throws IOException {
-        String fileName = urlContentAnalyzer.getHashURL();
+        String fileName = urlContentAnalyzer.getOutputPath() + urlContentAnalyzer.getHashURL();
         File outputHTML = new File(fileName + ".html");
         BufferedWriter bufferHTML = new BufferedWriter(new FileWriter(outputHTML));
 

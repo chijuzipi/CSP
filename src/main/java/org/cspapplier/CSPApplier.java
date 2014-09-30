@@ -12,17 +12,18 @@ import org.cspapplier.json.JsonWriter;
 
 public class CSPApplier {
     public static void main(String[] args) throws Exception {
-    	if (args.length != 3) {
-    		System.out.println("Usage: Java CSPApplier [Input] [Output file path] [URL] [isSampleMode = 0 | 1]");
+    	if (args.length != 4) {
+    		System.out.println("Usage: Java CSPApplier [Input file] [Output file path] [URL] [isSampleMode = 0 | 1]");
     		return;
     	}
 
         String fileName = args[0];
-        String url = args[1];
-        boolean isSample = (Integer.parseInt(args[2]) != 0);
+        String outputPath = args[1];
+        String url = args[2];
+        boolean isSample = (Integer.parseInt(args[3]) != 0);
 
         // Generate elements for external / block / inline JS
-        URLContentAnalyzer getURL = new URLContentAnalyzer(fileName, url);
+        URLContentAnalyzer getURL = new URLContentAnalyzer(fileName, url, outputPath);
         getURL.generateJSElements();
         getURL.generateCSSElements();
 
@@ -44,15 +45,15 @@ public class CSPApplier {
         jsonFromRequest.convertJS(elementHashMap);
         jsonFromRequest.convertCSS(elementHashMap);
 
-        if (JsonAnalyzer.isLocalJsonExist(getURL.getHashURL())) {
+        if (JsonAnalyzer.isLocalJsonExist(getURL.getHashURL(), getURL.getOutputPath())) {
             System.out.println("Local template already exist!");
-            HashMapInJson jsonFromLocal = JsonAnalyzer.jsonFromFile(getURL.getHashURL());
+            HashMapInJson jsonFromLocal = JsonAnalyzer.jsonFromFile(getURL.getHashURL(), getURL.getOutputPath());
             JsonAnalyzer jsonAnalyzer = new JsonAnalyzer(jsonFromRequest, jsonFromLocal);
 
             // Update the local json and the HashMaps containing elements.
             if (!jsonAnalyzer.isEmpty()) {
                 jsonAnalyzer.updateLocalJson(jsonFromLocal, isSample);
-                JsonWriter jsonWriter = new JsonWriter(jsonFromLocal, getURL.getHashURL());
+                JsonWriter jsonWriter = new JsonWriter(jsonFromLocal, getURL.getHashURL(), getURL.getOutputPath());
                 jsonWriter.write();
 
                 jsonAnalyzer.filterHashMap(elementHashMap);
@@ -60,7 +61,7 @@ public class CSPApplier {
 
         } else {
             System.out.println("Local template does not exist! Generating new template...");
-            JsonWriter jsonWriter = new JsonWriter(jsonFromRequest, getURL.getHashURL());
+            JsonWriter jsonWriter = new JsonWriter(jsonFromRequest, getURL.getHashURL(), getURL.getOutputPath());
             jsonWriter.write();
         }
         

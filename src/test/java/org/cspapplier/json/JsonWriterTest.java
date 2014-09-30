@@ -13,8 +13,9 @@ public class JsonWriterTest {
     public void initialize() throws Exception {
         String fileName = "src/test/resources/index.html";
         String url = "www.test.com";
+        String outputPath = "src/test/resources";
 
-        this.getURL = new URLContentAnalyzer(fileName, url);
+        this.getURL = new URLContentAnalyzer(fileName, url, outputPath);
         getURL.generateJSElements();
         getURL.generateCSSElements();
 
@@ -28,7 +29,7 @@ public class JsonWriterTest {
     }
     @Test
     public void testWrite() throws Exception {
-        JsonWriter jsonWriter = new JsonWriter(hashMapInJson, getURL.getHashURL());
+        JsonWriter jsonWriter = new JsonWriter(hashMapInJson, getURL.getHashURL(), getURL.getOutputPath());
         jsonWriter.write();
     }
 }

@@ -18,8 +18,9 @@ public class URLContentGeneratorTest {
     public void initialize() throws IOException, NoSuchAlgorithmException {
         String fileName = "src/test/resources/index.html";
         String url = "www.test.com";
+        String outputPath = "src/test/resources/";
 
-        URLContentAnalyzer getURL = new URLContentAnalyzer(fileName, url);
+        URLContentAnalyzer getURL = new URLContentAnalyzer(fileName, url, outputPath);
         getURL.generateJSElements();
         getURL.generateCSSElements();
 

@@ -22,13 +22,13 @@ public class JsonAnalyzerTest {
     private HashMapGenerator hashMap;
     private JsonAnalyzer jsonAnalyzer;
     private HashMapInJson localJson;
-    private String path = "src/test/resources/";
 
     @Before
     public void initialize() throws Exception {
-        String fileName = this.path + "index.html";
+        String path = "src/test/resources/";
+        String fileName = path + "index.html";
         String url = "www.test.com";
-        getURL = new URLContentAnalyzer(fileName, url);
+        getURL = new URLContentAnalyzer(fileName, url, path);
         getURL.generateJSElements();
         getURL.generateCSSElements();
 
@@ -39,21 +39,21 @@ public class JsonAnalyzerTest {
         HashMapInJson hashMapInJson = new HashMapInJson();
         hashMapInJson.convertJS(this.hashMap);
         hashMapInJson.convertCSS(this.hashMap);
-        localJson = JsonAnalyzer.jsonFromFile(this.path + getURL.getHashURL() + ".modified");
+        localJson = JsonAnalyzer.jsonFromFile(getURL.getHashURL() + ".modified", getURL.getOutputPath());
         this.jsonAnalyzer = new JsonAnalyzer(hashMapInJson, localJson);
     }
 
     @Test
     public void testIsLocalJsonExist() throws Exception {
-        String fileExistName = this.path + getURL.getHashURL() + ".orig";
-        String fileNotExistName = this.path + "notExist";
-        assertTrue(JsonAnalyzer.isLocalJsonExist(fileExistName));
-        assertTrue(!JsonAnalyzer.isLocalJsonExist(fileNotExistName));
+        String fileExistName = getURL.getHashURL() + ".orig";
+        String fileNotExistName = "notExist";
+        assertTrue(JsonAnalyzer.isLocalJsonExist(fileExistName, getURL.getOutputPath()));
+        assertTrue(!JsonAnalyzer.isLocalJsonExist(fileNotExistName, getURL.getOutputPath()));
     }
 
     @Test
     public void testJsonFromFile() throws IOException {
-        HashMapInJson localJson = JsonAnalyzer.jsonFromFile(this.path + getURL.getHashURL() + ".modified");
+        HashMapInJson localJson = JsonAnalyzer.jsonFromFile(getURL.getHashURL() + ".modified", getURL.getOutputPath());
         assertEquals(15, localJson.getJs().size());
         assertEquals(4, localJson.getCss().size());
     }
