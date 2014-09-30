@@ -1,6 +1,12 @@
-Content security policy 2.0
-******
-1. extract all in html script 
-2. generate JSON template for every URL 
-3. filter undesired script according to local template
-4. generate CSP header
+# Content security policy 2.0 #
+
+1. Extract all in html script 
+2. Generate JSON template for every URL 
+3. Filter undesired script according to local template
+4. Generate CSP header
+
+## Usage ##
+
+``` bash
+cspapplier.exe [Input file Path/Name] [Output Path] [URL] [Sample Mode]
+```
