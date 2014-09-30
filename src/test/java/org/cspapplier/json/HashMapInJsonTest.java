@@ -92,13 +92,13 @@ public class HashMapInJsonTest {
         assertEquals(4, this.hashMapInJson.getCss().size());
 
         int numInline = 0;
-        for (String id : hashMapInJson.getCss().keySet()) {
+        for (String id : this.hashMapInJson.getCss().keySet()) {
             for (ElementInJson elementInJson : hashMapInJson.getCss().get(id)) {
                 if (!elementInJson.getTag().equals("style")) {
                     numInline += 1;
                 }
             }
         }
-        assertEquals(3, numInline);
+        assertEquals(4, numInline);
     }
 }

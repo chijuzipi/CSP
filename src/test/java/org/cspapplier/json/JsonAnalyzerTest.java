@@ -55,7 +55,7 @@ public class JsonAnalyzerTest {
     public void testJsonFromFile() throws IOException {
         HashMapInJson localJson = JsonAnalyzer.jsonFromFile(this.path + getURL.getHashURL() + ".modified");
         assertEquals(15, localJson.getJs().size());
-        assertEquals(3, localJson.getCss().size());
+        assertEquals(4, localJson.getCss().size());
     }
 
     @Test
@@ -81,7 +81,7 @@ public class JsonAnalyzerTest {
 
         assertEquals(1, warningList.get("254cef50c5977a86c69a9f56ffee64496ddf99b5").getMoreList().size());
         String event2 = warningList.get("254cef50c5977a86c69a9f56ffee64496ddf99b5").getMoreList().get(0).getEvent();
-        assertEquals("onclick", event2);
+        assertEquals("onmouseover", event2);
     }
 
     @Test
@@ -104,7 +104,7 @@ public class JsonAnalyzerTest {
         String tag1 = warningList.get("1cbfaf12ea8cff56ff1eaae9fcebafba44e68afb").getMissList().get(0).getTag();
         assertEquals("div", tag1);
 
-        assertEquals(0, warningList.get("1cbfaf12ea8cff56ff1eaae9fcebafba44e68afb").getMoreList().size());
+        assertEquals(1, warningList.get("1cbfaf12ea8cff56ff1eaae9fcebafba44e68afb").getMoreList().size());
     }
 
     @Test

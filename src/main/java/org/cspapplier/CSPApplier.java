@@ -12,8 +12,8 @@ import org.cspapplier.json.JsonWriter;
 
 public class CSPApplier {
     public static void main(String[] args) throws Exception {
-    	if(args.length != 3) {
-    		System.out.println("Usage: Java CSPApplier [.html file path] [url] [isSampleMode = 0 | 1]");
+    	if (args.length != 3) {
+    		System.out.println("Usage: Java CSPApplier [Input] [Output file path] [URL] [isSampleMode = 0 | 1]");
     		return;
     	}
 
