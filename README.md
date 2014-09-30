@@ -1,4 +1,4 @@
-# Content security policy 2.0 #
+# Content Security Policy Applier #
 
 1. Extract all in html script 
 2. Generate JSON template for every URL 
