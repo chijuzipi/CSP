@@ -24,14 +24,17 @@ public class URLContentGenerator {
 
     private URLContentAnalyzer urlContentAnalyzer;
     private HashMapGenerator hashMapGenerator;
+    private String httpPath;
 
     // For generate random ID
     private Random randomGenerator;
 
     public URLContentGenerator(URLContentAnalyzer urlContentAnalyzer,
-                               HashMapGenerator hashMapGenerator) throws IOException {
+                               HashMapGenerator hashMapGenerator,
+                               String httpPath) throws IOException {
         this.urlContentAnalyzer = urlContentAnalyzer;
         this.hashMapGenerator = hashMapGenerator;
+        this.httpPath = URLContentAnalyzer.generateCompletePath(httpPath);
 
         this.randomGenerator = new Random(System.currentTimeMillis());
     }
@@ -123,6 +126,7 @@ public class URLContentGenerator {
 
     public void generateHTML() throws IOException {
         String fileName = urlContentAnalyzer.getOutputPath() + urlContentAnalyzer.getHashURL();
+        String srcName = httpPath + urlContentAnalyzer.getHashURL();
         File outputHTML = new File(fileName + ".html");
         BufferedWriter bufferHTML = new BufferedWriter(new FileWriter(outputHTML));
 
@@ -149,11 +153,11 @@ public class URLContentGenerator {
         }
         
         // Add external JS file to html
-        doc.head().appendElement("script").attr("src", fileName + ".js");
+        doc.head().appendElement("script").attr("src", srcName + ".js");
         
         // Add external CSS file to html
         doc.head().appendElement("link").attr("rel", "stylesheet")
-                  .attr("type", "text/css").attr("href", fileName + ".css");
+                  .attr("type", "text/css").attr("href", srcName + ".css");
 
         // Write html into a new file
         bufferHTML.write(doc.toString());
@@ -163,5 +167,9 @@ public class URLContentGenerator {
     public String generateElementID() throws NoSuchAlgorithmException {
         double randomNumber = randomGenerator.nextDouble();
         return SHAHash.getHashCode(String.valueOf(randomNumber));
+    }
+
+    public String getHttpPath() {
+        return this.httpPath;
     }
 }

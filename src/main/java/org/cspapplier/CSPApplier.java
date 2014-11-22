@@ -12,15 +12,17 @@ import org.cspapplier.json.JsonWriter;
 
 public class CSPApplier {
     public static void main(String[] args) throws Exception {
-    	if (args.length != 4) {
-    		System.out.println("Usage: Java CSPApplier [Input file] [Output file path] [URL] [isSampleMode = 0 | 1]");
+    	if (args.length != 5) {
+    		System.out.println("Usage: Java CSPApplier [Input file] [Output file path] " +
+                               "[HTTP Path] [URL] [isSampleMode = 0 | 1]");
     		return;
     	}
 
         String fileName = args[0];
         String outputPath = args[1];
-        String url = args[2];
-        boolean isSample = (Integer.parseInt(args[3]) != 0);
+        String httpPath = args[2];
+        String url = args[3];
+        boolean isSample = (Integer.parseInt(args[4]) != 0);
 
         // Generate elements for external / block / inline JS
         URLContentAnalyzer getURL = new URLContentAnalyzer(fileName, url, outputPath);
@@ -65,7 +67,7 @@ public class CSPApplier {
             jsonWriter.write();
         }
         
-        URLContentGenerator htmlGen = new URLContentGenerator(getURL, elementHashMap);
+        URLContentGenerator htmlGen = new URLContentGenerator(getURL, elementHashMap, httpPath);
         htmlGen.generateJS();
         htmlGen.generateCSS();
         htmlGen.generateHTML();

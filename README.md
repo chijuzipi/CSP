@@ -8,5 +8,7 @@
 ## Usage ##
 
 ``` bash
-cspapplier.exe [Input file Path/Name] [Output Path] [URL] [Sample Mode]
+cspapplier.exe [Input file Path/Name] [Output Path] [HTTP Path] [URL] [Sample Mode]
 ```
+* `Output Path` is the path where the HTML/JS/CSS files are placed.
+* `HTTP Path` is the path filled in the `src` attribute

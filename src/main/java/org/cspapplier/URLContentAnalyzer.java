@@ -33,7 +33,7 @@ public class URLContentAnalyzer
         // Parse the DOM structure of the input URL content
         File inputFile = new File(fileName);
         this.hashURL = SHAHash.getHashCode(url);
-        this.outputPath = completePath(outputPath);
+        this.outputPath = generateCompletePath(outputPath);
         this.inputDOM = Jsoup.parse(inputFile, "UTF-8");
     }
 
@@ -94,9 +94,9 @@ public class URLContentAnalyzer
         this.inlineCSSElements = inputDOM.select("[style]");
     }
 
-    private String completePath(String path) {
+    static String generateCompletePath(String path) {
         char lastChar = path.charAt(path.length() - 1);
-        return path + ((lastChar != '/') ? "/" : "");
+        return path + ((lastChar != '/' && lastChar != '\\') ? "/" : "");
     }
 
     // Getters & Setters

@@ -19,6 +19,7 @@ public class URLContentGeneratorTest {
         String fileName = "src/test/resources/index.html";
         String url = "www.test.com";
         String outputPath = "src/test/resources/";
+        String httpPath = "src/test/resources";
 
         URLContentAnalyzer getURL = new URLContentAnalyzer(fileName, url, outputPath);
         getURL.generateJSElements();
@@ -28,7 +29,7 @@ public class URLContentGeneratorTest {
         hashMap.generateJSElementHashMap(getURL);
         hashMap.generateCSSElementHashMap(getURL);
 
-        this.urlContentGenerator = new URLContentGenerator(getURL, hashMap);
+        this.urlContentGenerator = new URLContentGenerator(getURL, hashMap, httpPath);
     }
 
     @Test
@@ -40,5 +41,10 @@ public class URLContentGeneratorTest {
         }
 
         assertEquals(testNumber, testArray.size());
+    }
+
+    @Test
+    public void testHTTPPath() throws IOException {
+        assertEquals("src/test/resources/", urlContentGenerator.getHttpPath());
     }
 }
