@@ -5,7 +5,6 @@ import org.cspapplier.util.ElementEventBinder;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
-import java.io.File;
 
 import org.cspapplier.util.SHAHash;
 import org.jsoup.Jsoup;
@@ -27,14 +26,13 @@ public class URLContentAnalyzer
     private Elements inlineCSSElements;
     private Elements externalCSSElements;
 
-    public URLContentAnalyzer(String fileName, String url, String outputPath) throws IOException, NoSuchAlgorithmException {
+    public URLContentAnalyzer(String content, String url, String outputPath) throws IOException, NoSuchAlgorithmException {
         inlineJSElementEvents = new ArrayList<ElementEventBinder>();
 
         // Parse the DOM structure of the input URL content
-        File inputFile = new File(fileName);
         this.hashURL = SHAHash.getHashCode(url);
         this.outputPath = generateCompletePath(outputPath);
-        this.inputDOM = Jsoup.parse(inputFile, "UTF-8");
+        this.inputDOM = Jsoup.parse(content, "UTF-8");
     }
 
     public void generateJSElements() {

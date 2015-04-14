@@ -11,29 +11,26 @@ import org.cspapplier.json.JsonWriter;
  */
 
 public class CSPApplier {
-    public static void main(String[] args) throws Exception {
-    	if (args.length != 5) {
-    		System.out.println("Usage: Java CSPApplier [Input file] [Output file path] " +
-                               "[HTTP Path] [URL] [isSampleMode = 0 | 1]");
-    		return;
-    	}
+    URLContentAnalyzer getURL;
 
-        String fileName = args[0];
-        String outputPath = args[1];
-        String httpPath = args[2];
-        String url = args[3];
-        boolean isSample = (Integer.parseInt(args[4]) != 0);
-
+    public CSPApplier(String inputHTML, String url, String outputPath, String httpPath) throws Exception {
         // Generate elements for external / block / inline JS
-        URLContentAnalyzer getURL = new URLContentAnalyzer(fileName, url, outputPath);
+        getURL = new URLContentAnalyzer(inputHTML, url, outputPath);
         getURL.generateJSElements();
         getURL.generateCSSElements();
+
+//    	if (args.length != 5) {
+//    		System.out.println("Usage: Java CSPApplier [Input file] [Output file path] " +
+//                               "[HTTP Path] [URL] [isSampleMode = 0 | 1]");
+//    		return;
+//    	}
+        boolean isSample =  true;
 
         /*
          * Generate HashMaps for external / block / inline JS
          * - Key: the SHA1 hash of the JS content
          * - Value: the Elements or Array<ElementEventBinder> object
-        */
+         */
         HashMapGenerator elementHashMap = new HashMapGenerator();
         elementHashMap.generateJSElementHashMap(getURL);
         elementHashMap.generateCSSElementHashMap(getURL);
@@ -42,10 +39,14 @@ public class CSPApplier {
          * Generate Json compatible HashMaps for external / block / inline JS
          * - Key: the SHA1 hash of the JS content
          * - Value: the Array<ElementInJson> object which is Json compatible
-        */
+         */
         HashMapInJson jsonFromRequest = new HashMapInJson();
         jsonFromRequest.convertJS(elementHashMap);
         jsonFromRequest.convertCSS(elementHashMap);
+
+        /*
+         * Generate JSON template
+         */
 
         if (JsonAnalyzer.isLocalJsonExist(getURL.getHashURL(), getURL.getOutputPath())) {
             System.out.println("Local template already exist!");

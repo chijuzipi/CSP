@@ -32,7 +32,7 @@ public class CSPGenerator {
         }
 
         CSPHeader = CSPHeader + URLContent.getHashURL() + ".js ";
-        // delete the last space
+        // Delete the last space
         CSPHeader = CSPHeader.substring(0, CSPHeader.length() - 1);
         CSPHeader = CSPHeader + "; ";
         CSPHeader = CSPHeader + "style-src 'self' ";
