@@ -2,7 +2,7 @@ package org.cspapplier;
 
 import org.cspapplier.json.HashMapInJson;
 import org.cspapplier.json.JsonAnalyzer;
-import org.cspapplier.json.JsonWriter;
+import org.cspapplier.mongo.PageJsonColl;
 
 /**
  *  CSPApplier.java
@@ -12,8 +12,8 @@ import org.cspapplier.json.JsonWriter;
 
 public class CSPApplier {
     public static void main(String[] args) throws Exception {
-    	if (args.length != 5) {
-    		System.out.println("Usage: Java CSPApplier [Input file] [Output file path] " +
+        if (args.length != 5) {
+            System.out.println("Usage: Java CSPApplier [Input file] [Output file path] " +
                                "[HTTP Path] [URL] [isSampleMode = 0 | 1]");
     		return;
     	}
@@ -47,24 +47,25 @@ public class CSPApplier {
         jsonFromRequest.convertJS(elementHashMap);
         jsonFromRequest.convertCSS(elementHashMap);
 
-        if (JsonAnalyzer.isLocalJsonExist(getURL.getHashURL(), getURL.getOutputPath())) {
+        String hashURL = getURL.getHashURL();
+        if (JsonAnalyzer.isLocalJsonExist(hashURL, PageJsonColl)) {
             System.out.println("Local template already exist!");
-            HashMapInJson jsonFromLocal = JsonAnalyzer.jsonFromFile(getURL.getHashURL(), getURL.getOutputPath());
+            HashMapInJson jsonFromLocal = JsonAnalyzer.jsonFromFile(hashURL, PageJsonColl);
             JsonAnalyzer jsonAnalyzer = new JsonAnalyzer(jsonFromRequest, jsonFromLocal);
 
-            // Update the local json and the HashMaps containing elements.
+            // Found difference, update the local json and the HashMaps containing elements.
             if (!jsonAnalyzer.isEmpty()) {
-                jsonAnalyzer.updateLocalJson(jsonFromLocal, isSample);
-                JsonWriter jsonWriter = new JsonWriter(jsonFromLocal, getURL.getHashURL(), getURL.getOutputPath());
-                jsonWriter.write();
 
+                //change the jsonFromLocal object, also update database
+                jsonAnalyzer.updateLocalJson(jsonFromLocal, isSample, hashURL, PageJsonColl);
+
+                //
                 jsonAnalyzer.filterHashMap(elementHashMap);
             }
 
         } else {
             System.out.println("Local template does not exist! Generating new template...");
-            JsonWriter jsonWriter = new JsonWriter(jsonFromRequest, getURL.getHashURL(), getURL.getOutputPath());
-            jsonWriter.write();
+            JsonAnalyzer.insertNewJson(getURL.getHashURL(), PageJsonColl, jsonFromRequest);
         }
         
         URLContentGenerator htmlGen = new URLContentGenerator(getURL, elementHashMap, httpPath);

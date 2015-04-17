@@ -1,6 +1,11 @@
 package org.cspapplier.json;
 
 import com.google.gson.Gson;
+import com.mongodb.BasicDBObject;
+import static com.mongodb.client.model.Filters.*;
+import org.bson.Document;
+
+import com.mongodb.client.FindIterable;
 import org.cspapplier.HashMapGenerator;
 
 import java.io.BufferedReader;
@@ -10,6 +15,8 @@ import java.io.IOException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import org.cspapplier.mongo.PageJsonColl;
 
 public class JsonAnalyzer {
     private ComparisonResult jsComparisonResult;
@@ -71,7 +78,7 @@ public class JsonAnalyzer {
                this.cssComparisonResult.isEmpty();
     }
 
-    public void updateLocalJson(HashMapInJson localJson, boolean isSampling) {
+    public void updateLocalJson(HashMapInJson localJson, boolean isSampling, String hashURL, PageJsonColl pageJson) {
         HashMap<String, DiffList> jsWarningList = jsComparisonResult.getWarningList();
         for (String id : jsWarningList.keySet()) {
             localJson.getJs().get(id).addAll(jsWarningList.get(id).getMissList());
@@ -92,29 +99,37 @@ public class JsonAnalyzer {
             for (String id : cssBlackList.keySet()) {
                 localJson.getCss().put(id, cssBlackList.get(id));
             }
+
+            updateDBJson(hashURL, pageJson, localJson);
         }
+
     }
 
-    public static boolean isLocalJsonExist(String hashURL, String outputPath) {
-        File localJson = new File(outputPath + hashURL + ".json");
-        return localJson.exists();
+    /*
+     * test if the template exist in the local db (pageJson collection)
+     */
+    public static boolean isLocalJsonExist(String hashURL, PageJsonColl pageJson) {
+        Document myDoc = (Document)pageJson.getCollection().find(eq("URLHash", hashURL));
+        if (myDoc.isEmpty())
+            return true;
+        else
+            return false;
     }
 
-    public static HashMapInJson jsonFromFile(String hashURL, String outputPath) throws IOException {
-        String inputFileName = outputPath + hashURL + ".json";
-        BufferedReader inputJsonBuffer = new BufferedReader(new FileReader(inputFileName));
-        try {
-            String inputJson;
-            StringBuilder buildJson = new StringBuilder();
-            while ((inputJson = inputJsonBuffer.readLine()) != null) {
-                buildJson.append(inputJson);
-            }
+    public static void insertNewJson(String hashURL, PageJsonColl pageJson, HashMapInJson jsonFromRequest){
+        pageJson.insert(hashURL, jsonFromRequest.toString());
+    }
+
+    public static void updateDBJson(String hashURL, PageJsonColl pageJson, HashMapInJson newJson){
+        pageJson.getCollection().updateOne(eq("URLHash", hashURL), new Document("$set", new Document("URLHash", newJson)));
+    }
+
+
+    public static HashMapInJson jsonFromFile(String hashURL, PageJsonColl pageJson){
+            Document myDoc = (Document)pageJson.getCollection().find(eq("URLHash", hashURL));
 
             Gson gson = new Gson();
-            return gson.fromJson(buildJson.toString(), HashMapInJson.class);
-        } finally {
-            inputJsonBuffer.close();
-        }
+            return gson.fromJson(myDoc.toJson(), HashMapInJson.class);
     }
 
     public void filterHashMap(HashMapGenerator hashMaps) {
