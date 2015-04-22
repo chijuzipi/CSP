@@ -12,11 +12,11 @@ public class CSPGeneratorTest {
 
     @Before
     public void setUp() throws Exception {
-        String outputPath = "src/test/resources/";
-        String fileName = outputPath + "index.html";
+        String filePath = "src/test/resources/";
+        String fileName = filePath + "index.html";
         String url = "www.test.com";
 
-        this.urlContent = new URLContentAnalyzer(fileName, url, outputPath);
+        this.urlContent = new URLContentAnalyzer(fileName, url);
         this.urlContent.generateJSElements();
         this.urlContent.generateCSSElements();
 
@@ -24,8 +24,9 @@ public class CSPGeneratorTest {
     }
 
     @Test
-    public void testWrite() throws Exception {
+    public void testGetCSPHeader() {
         this.CSPGen.generateCSPHeader();
-        this.CSPGen.write();
+        assertNotEquals("Content-Security-Policy: default-src 'self'; script-src 'self' ",
+                this.CSPGen.getCSPHeader());
     }
 }

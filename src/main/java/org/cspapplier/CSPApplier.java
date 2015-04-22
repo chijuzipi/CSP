@@ -2,7 +2,6 @@ package org.cspapplier;
 
 import org.cspapplier.json.HashMapInJson;
 import org.cspapplier.json.JsonAnalyzer;
-import org.cspapplier.json.JsonWriter;
 
 /**
  *  CSPApplier.java

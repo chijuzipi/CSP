@@ -44,21 +44,6 @@ public class CSPGenerator {
         CSPHeader = CSPHeader + "; ";
     }
 
-    public void write() throws IOException {
-        String fileName = this.URLContent.getOutputPath() + this.URLContent.getHashURL() + ".csp";
-        FileOutputStream fileOutputStream = new FileOutputStream(new File(fileName));
-        OutputStreamWriter outputStream = new OutputStreamWriter(fileOutputStream);
-
-        try {
-            outputStream.append(this.CSPHeader);
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            outputStream.close();
-            fileOutputStream.close();
-        }
-    }
-
     public String getCSPHeader() {
         return CSPHeader;
     }

@@ -28,7 +28,7 @@ public class JsonAnalyzerTest {
         String path = "src/test/resources/";
         String fileName = path + "index.html";
         String url = "www.test.com";
-        getURL = new URLContentAnalyzer(fileName, url, path);
+        getURL = new URLContentAnalyzer(fileName, url);
         getURL.generateJSElements();
         getURL.generateCSSElements();
 
