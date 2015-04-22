@@ -8,14 +8,28 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.apache.commons.cli.UnrecognizedOptionException;
 import org.apache.commons.lang3.StringUtils;
-import org.littleshoot.proxy.extras.SelfSignedMitmManager;
+
 import org.littleshoot.proxy.HttpProxyServerBootstrap;
+import org.littleshoot.proxy.HttpFilters;
+import org.littleshoot.proxy.HttpFiltersAdapter;
+import org.littleshoot.proxy.HttpFiltersSourceAdapter;
+import org.littleshoot.proxy.extras.SelfSignedMitmManager;
 import org.littleshoot.proxy.impl.DefaultHttpProxyServer;
 import org.littleshoot.proxy.impl.ProxyUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.net.InetSocketAddress;
+import static io.netty.buffer.Unpooled.buffer;
+import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.handler.codec.http.HttpObject;
+import io.netty.handler.codec.http.HttpContent;
+import io.netty.handler.codec.http.HttpRequest;
+import io.netty.handler.codec.http.HttpResponse;
+import io.netty.handler.codec.http.FullHttpResponse;
+import io.netty.util.CharsetUtil;
+
 import java.util.Arrays;
 
 
@@ -32,7 +46,6 @@ public class Launcher {
     private static final String OPTION_PORT = "port";
     private static final String OPTION_HELP = "help";
     private static final String OPTION_MITM = "mitm";
-    private static final String OPTION_NIC = "nic";
 
     /**
      * Starts the proxy from the command line.
@@ -46,7 +59,6 @@ public class Launcher {
         options.addOption(null, OPTION_DNSSEC, true,
                 "Request and verify DNSSEC signatures.");
         options.addOption(null, OPTION_PORT, true, "Run on the specified port.");
-        options.addOption(null, OPTION_NIC, true, "Run on a specified Nic");
         options.addOption(null, OPTION_HELP, false,
                 "Display command line help.");
         options.addOption(null, OPTION_MITM, false, "Run as man in the middle.");
@@ -87,12 +99,80 @@ public class Launcher {
         HttpProxyServerBootstrap bootstrap = DefaultHttpProxyServer
                 .bootstrapFromFile("./littleproxy.properties")
                 .withPort(port)
-                .withAllowLocalOnly(false);
+                .withAllowLocalOnly(false)
+                .withFiltersSource(new HttpFiltersSourceAdapter() {
+                    public HttpFilters filterRequest(HttpRequest originalRequest, ChannelHandlerContext ctx) {
+                        return new HttpFiltersAdapter(originalRequest) {
+                            @Override
+                            public HttpResponse requestPre(HttpObject httpObject) {
+                                if (httpObject instanceof HttpRequest) {
+                                    HttpRequest httpRequest = (HttpRequest) httpObject;
+                                    if (httpRequest.headers().contains("Accept-Encoding")) {
+                                        httpRequest.headers().remove("Accept-Encoding");
+                                    }
+                                }
+                                return null;
+                            }
 
-        if (cmd.hasOption(OPTION_NIC)) {
-            final String val = cmd.getOptionValue(OPTION_NIC);
-            bootstrap.withNetworkInterface(new InetSocketAddress(val, 0));
-        }
+                            @Override
+                            public HttpResponse requestPost(HttpObject httpObject) {
+                                // TODO: implement your filtering here
+                                return null;
+                            }
+
+                            @Override
+                            public HttpObject responsePre(HttpObject httpObject) {
+                                String url = originalRequest.getUri();
+                                System.out.println("--------------Seprator--------------\n");
+                                System.out.println("Response post -> " + url + " - " +
+                                        httpObject.getClass() + " - " + httpObject);
+                                if (httpObject instanceof FullHttpResponse) {
+                                    String ctype = ((FullHttpResponse) httpObject).headers().get("Content-type");
+                                    if (ctype != null) {
+                                        System.out.println("Response text/html -> " + ctype);
+                                        if (!ctype.startsWith("text/html")) {
+                                            System.out.println("Not HTML, return!!!!");
+                                            return httpObject;
+                                        }
+                                    } else {
+                                        System.out.println("Not HTML, return!!!!");
+                                        return httpObject;
+                                    }
+                                }
+
+                                if (httpObject instanceof HttpContent) {
+                                    String response = ((HttpContent) httpObject).content().toString(CharsetUtil.UTF_8);
+                                    ByteBuf newHTML = buffer(1024);
+
+                                    CSPApplier csp = new CSPApplier(response, url, filePath, httpPath, true);
+                                    csp.analyzeJson();
+                                    String newDoc = csp.generateHTML();
+                                    newHTML.writeBytes(newDoc.getBytes());
+                                    ((HttpContent) httpObject).content().clear().writeBytes(newHTML);
+                                    ((FullHttpResponse) httpObject).headers().set("Content-Length", newDoc.length());
+                                }
+                                return httpObject;
+                            }
+
+                            @Override
+                            public HttpObject responsePost(HttpObject httpObject) {
+                                // TODO: implement your filtering here
+                                return httpObject;
+                            }
+
+                        };
+                    }
+
+                    @Override
+                    public int getMaximumRequestBufferSizeInBytes() {
+                        return Integer.MAX_VALUE;
+                    }
+
+                    @Override
+                    public int getMaximumResponseBufferSizeInBytes() {
+                        return Integer.MAX_VALUE;
+                    }
+                });
 
         if (cmd.hasOption(OPTION_MITM)) {
             LOG.info("Running as Man in the Middle");

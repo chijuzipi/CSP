@@ -32,11 +32,12 @@ public class JsonAnalyzer {
         ArrayList<ElementInJson> elementsMore;
         DiffList diffList;
 
-        /* For each ID hashed from JS content:
-         * 1. If the local json has the ID but elements not same, add to warning list with
+        /**
+         *  For each ID hashed from JS content:
+         *  - If the local json has the ID but elements not same, add to warning list with
          *    the list of different elements
-         * 2. If the local json does not have the ID, add to black list.
-        */
+         *  - If the local json does not have the ID, add to black list.
+         */
         for (String id : requestHM.keySet()) {
             if (localHM.containsKey(id)) {
                 elementsInRequestJson = requestHM.get(id);
