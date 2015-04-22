@@ -58,4 +58,8 @@ public class CSPGenerator {
             fileOutputStream.close();
         }
     }
+
+    public String getCSPHeader() {
+        return CSPHeader;
+    }
 }

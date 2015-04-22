@@ -25,22 +25,32 @@ public class URLContentGenerator {
     private URLContentAnalyzer urlContentAnalyzer;
     private HashMapGenerator hashMapGenerator;
     private String httpPath;
+    private String filePath;
 
     // For generate random ID
     private Random randomGenerator;
 
     public URLContentGenerator(URLContentAnalyzer urlContentAnalyzer,
                                HashMapGenerator hashMapGenerator,
-                               String httpPath) throws IOException {
+                               String httpPath, String filePath) throws IOException {
         this.urlContentAnalyzer = urlContentAnalyzer;
         this.hashMapGenerator = hashMapGenerator;
-        this.httpPath = URLContentAnalyzer.generateCompletePath(httpPath);
+        this.httpPath = generateCompletePath(httpPath);
+        this.filePath = generateCompletePath(filePath);
 
         this.randomGenerator = new Random(System.currentTimeMillis());
     }
-    
+
+    /**
+     * generateJS:
+     *
+     * Generate the JS file to the local directory
+     *
+     * @throws IOException
+     * @throws NoSuchAlgorithmException
+     */
     public void generateJS() throws IOException, NoSuchAlgorithmException {
-        String fileName = urlContentAnalyzer.getOutputPath() + urlContentAnalyzer.getHashURL();
+        String fileName = filePath + urlContentAnalyzer.getHashURL();
         File outputJS= new File(fileName + ".js");
         BufferedWriter bufferJS = new BufferedWriter(new FileWriter(outputJS));
 
@@ -90,7 +100,7 @@ public class URLContentGenerator {
     }
 
     public void generateCSS() throws IOException, NoSuchAlgorithmException {
-        String fileName = urlContentAnalyzer.getOutputPath() + urlContentAnalyzer.getHashURL();
+        String fileName = filePath + urlContentAnalyzer.getHashURL();
         File outputCSS = new File(fileName + ".css");
         BufferedWriter bufferCSS = new BufferedWriter(new FileWriter(outputCSS));
 
@@ -124,12 +134,8 @@ public class URLContentGenerator {
         }
     }
 
-    public void generateHTML() throws IOException {
-        String fileName = urlContentAnalyzer.getOutputPath() + urlContentAnalyzer.getHashURL();
+    public String generateHTML() throws IOException {
         String srcName = httpPath + urlContentAnalyzer.getHashURL();
-        File outputHTML = new File(fileName + ".html");
-        BufferedWriter bufferHTML = new BufferedWriter(new FileWriter(outputHTML));
-
         Document doc = urlContentAnalyzer.getInputDOM();
 
         // Remove block JS
@@ -159,9 +165,10 @@ public class URLContentGenerator {
         doc.head().appendElement("link").attr("rel", "stylesheet")
                   .attr("type", "text/css").attr("href", srcName + ".css");
 
-        // Write html into a new file
-        bufferHTML.write(doc.toString());
-        bufferHTML.close();
+        /**
+         * Output the HTML to string for proxy to handle
+         */
+        return doc.toString();
     }
 
     public String generateElementID() throws NoSuchAlgorithmException {
@@ -169,7 +176,16 @@ public class URLContentGenerator {
         return SHAHash.getHashCode(String.valueOf(randomNumber));
     }
 
+    static String generateCompletePath(String path) {
+        char lastChar = path.charAt(path.length() - 1);
+        return path + ((lastChar != '/' && lastChar != '\\') ? "/" : "");
+    }
+
     public String getHttpPath() {
         return this.httpPath;
+    }
+
+    public String getFilePath() {
+        return this.filePath;
     }
 }
