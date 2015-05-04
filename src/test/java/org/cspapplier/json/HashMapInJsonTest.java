@@ -20,9 +20,8 @@ public class HashMapInJsonTest {
     public void initialize() throws Exception {
         String fileName = "src/test/resources/index.html";
         String url = "www.test.com";
-        String outputPath = "src/test/resources";
 
-        URLContentAnalyzer getURL = new URLContentAnalyzer(fileName, url, outputPath);
+        URLContentAnalyzer getURL = new URLContentAnalyzer(fileName, url);
         getURL.generateJSElements();
         getURL.generateCSSElements();
 
