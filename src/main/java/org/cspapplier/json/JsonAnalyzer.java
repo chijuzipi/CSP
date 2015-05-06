@@ -1,8 +1,12 @@
 package org.cspapplier.json;
 
 import com.google.gson.Gson;
+import com.mongodb.util.JSON;
 
 import static com.mongodb.client.model.Filters.*;
+
+import com.mongodb.BasicDBObject;
+import com.mongodb.client.FindIterable;
 import org.bson.Document;
 
 import org.cspapplier.HashMapGenerator;
@@ -75,7 +79,10 @@ public class JsonAnalyzer {
                this.cssComparisonResult.isEmpty();
     }
 
-    public void updateLocalJson(HashMapInJson localJson, boolean isSampling, String hashURL, PageJsonColl pageJson) {
+    public void updateLocalJson(HashMapInJson localJson, boolean isSampling, String hashURL, PageJsonColl pageJsonColl) {
+        /**
+         * Add the warning element list to the local json
+         */
         HashMap<String, DiffList> jsWarningList = jsComparisonResult.getWarningList();
         for (String id : jsWarningList.keySet()) {
             localJson.getJs().get(id).addAll(jsWarningList.get(id).getMissList());
@@ -86,47 +93,53 @@ public class JsonAnalyzer {
             localJson.getCss().get(id).addAll(cssWarningList.get(id).getMissList());
         }
 
-        if (isSampling) {
+        if(isSampling) {
             HashMap<String, ArrayList<ElementInJson>> jsBlackList = jsComparisonResult.getBlackList();
             for (String id : jsBlackList.keySet()) {
                 localJson.getJs().put(id, jsBlackList.get(id));
             }
-
             HashMap<String, ArrayList<ElementInJson>> cssBlackList = cssComparisonResult.getBlackList();
             for (String id : cssBlackList.keySet()) {
                 localJson.getCss().put(id, cssBlackList.get(id));
             }
-
-            updateDBJson(hashURL, pageJson, localJson);
         }
 
+        pageJsonColl.update(localJson, hashURL);
     }
 
     /*
      * test if the template exist in the local db (pageJson collection)
      */
     public static boolean isLocalJsonExist(String hashURL, PageJsonColl pageJson) {
-        Document myDoc = (Document)pageJson.getCollection().find(eq("URLHash", hashURL));
-        if (myDoc.isEmpty())
-            return true;
-        else
-            return false;
+        Document myDoc = (Document)(pageJson.getCollection().find(eq("URLHash", hashURL)).first());
+        return (myDoc != null);
     }
 
     public static void insertNewJson(String hashURL, PageJsonColl pageJson, HashMapInJson jsonFromRequest){
         pageJson.insert(hashURL, jsonFromRequest.toString());
     }
 
-    public static void updateDBJson(String hashURL, PageJsonColl pageJson, HashMapInJson newJson){
-        pageJson.getCollection().updateOne(eq("URLHash", hashURL), new Document("$set", new Document("URLHash", newJson)));
+    /*
+    public void updateDBJson(String hashURL, PageJsonColl pageJson, HashMapInJson newJson){
+        pageJson.getCollection()
+            .updateOne(eq("URLHash", hashURL),
+                    {"$set", new Document("URLHash", newJson)),
+                    {multi:false});
     }
+    */
 
 
-    public static HashMapInJson jsonFromLocal(String hashURL, PageJsonColl pageJson){
-            Document myDoc = (Document)pageJson.getCollection().find(eq("URLHash", hashURL));
+    public static HashMapInJson jsonFromLocal(String hashURL, PageJsonColl pageJson) {
+            Document myDoc = (Document)(pageJson.getCollection()
+                    .find(eq("URLHash", hashURL))
+                    .first());
 
+            // get the "content" part of the document
+            Document contents = (Document)myDoc.get("content");
             Gson gson = new Gson();
-            return gson.fromJson(myDoc.toJson(), HashMapInJson.class);
+            HashMapInJson output = gson.fromJson(contents.toJson(),HashMapInJson.class);
+
+            return output;
     }
 
     public void filterHashMap(HashMapGenerator hashMaps) {

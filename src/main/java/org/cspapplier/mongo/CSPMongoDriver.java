@@ -12,15 +12,15 @@ import java.util.Calendar;
 public class CSPMongoDriver {
 	protected MongoDatabase db;
 	public PageJsonColl pageJson;
-	/*
-	public DiffLogColl diffLog; 
-	public DiffURLColl diffURL;
-	public DynamicPageColl DPage;
-	*/
+	/**
+	 *  public DiffLogColl diffLog;
+	 *  public DiffURLColl diffURL;
+	 *  public DynamicPageColl DPage;
+	 */
 
 	public CSPMongoDriver() throws UnknownHostException{
         MongoClient mongoClient = new MongoClient( "localhost", 27017);
-        db = mongoClient.getDatabase("cspdb");
+        db = mongoClient.getDatabase("csp");
 
         //#1 collection, store page json
         pageJson = new PageJsonColl(db);
@@ -45,8 +45,7 @@ public class CSPMongoDriver {
 	public static String getDate(){
 		DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 		Calendar cal = Calendar.getInstance();
-		String output = dateFormat.format(cal.getTime()); //2014/08/06 16:00:22
-		return output;
+		return dateFormat.format(cal.getTime()); //2014/08/06 16:00:22
 	}
 
 }//end of class
