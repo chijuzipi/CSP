@@ -25,7 +25,7 @@ public class URLContentAnalyzer
     private Elements inlineCSSElements;
     private Elements externalCSSElements;
 
-    public URLContentAnalyzer(String content, String url) throws IOException, NoSuchAlgorithmException {
+    public URLContentAnalyzer(String content, String url) throws NoSuchAlgorithmException {
         inlineJSElementEvents = new ArrayList<ElementEventBinder>();
 
         // Parse the DOM structure of the input URL content

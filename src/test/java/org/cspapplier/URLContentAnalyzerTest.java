@@ -1,10 +1,13 @@
 package org.cspapplier;
 
 import org.cspapplier.util.ElementEventBinder;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 
@@ -17,7 +20,11 @@ public class URLContentAnalyzerTest {
     public void initialize() throws IOException, NoSuchAlgorithmException {
         String fileName = "src/test/resources/index.html";
         String url = "www.test.com";
-        this.getURL = new URLContentAnalyzer(fileName, url);
+
+        File html = new File(fileName);
+        Document doc = Jsoup.parse(html, "UTF-8");
+
+        this.getURL = new URLContentAnalyzer(doc.toString(), url);
     }
 
     @Test

@@ -1,16 +1,12 @@
 package org.cspapplier.json;
 
 import com.google.gson.Gson;
-import com.mongodb.BasicDBObject;
+
 import static com.mongodb.client.model.Filters.*;
 import org.bson.Document;
 
-import com.mongodb.client.FindIterable;
 import org.cspapplier.HashMapGenerator;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
 
 import java.util.ArrayList;
@@ -22,7 +18,7 @@ public class JsonAnalyzer {
     private ComparisonResult jsComparisonResult;
     private ComparisonResult cssComparisonResult;
 
-    public JsonAnalyzer(HashMapInJson jsonFromRequest, HashMapInJson jsonFromLocal) throws IOException {
+    public JsonAnalyzer(HashMapInJson jsonFromRequest, HashMapInJson jsonFromLocal) {
         this.jsComparisonResult = generateFilterList(jsonFromRequest.getJs(), jsonFromLocal.getJs());
         this.cssComparisonResult = generateFilterList(jsonFromRequest.getCss(), jsonFromLocal.getCss());
     }
@@ -126,7 +122,7 @@ public class JsonAnalyzer {
     }
 
 
-    public static HashMapInJson jsonFromFile(String hashURL, PageJsonColl pageJson){
+    public static HashMapInJson jsonFromLocal(String hashURL, PageJsonColl pageJson){
             Document myDoc = (Document)pageJson.getCollection().find(eq("URLHash", hashURL));
 
             Gson gson = new Gson();

@@ -1,5 +1,8 @@
 package org.cspapplier;
 
+import com.mongodb.MongoClient;
+import com.mongodb.MongoClientURI;
+import com.mongodb.client.MongoDatabase;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
@@ -9,6 +12,7 @@ import org.apache.commons.cli.PosixParser;
 import org.apache.commons.cli.UnrecognizedOptionException;
 import org.apache.commons.lang3.StringUtils;
 
+import org.cspapplier.mongo.PageJsonColl;
 import org.littleshoot.proxy.HttpProxyServerBootstrap;
 import org.littleshoot.proxy.HttpFilters;
 import org.littleshoot.proxy.HttpFiltersAdapter;
@@ -30,6 +34,8 @@ import io.netty.handler.codec.http.HttpResponse;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.util.CharsetUtil;
 
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 
 
@@ -46,6 +52,9 @@ public class Launcher {
     private static final String OPTION_PORT = "port";
     private static final String OPTION_HELP = "help";
     private static final String OPTION_MITM = "mitm";
+    private static final String OPTION_HTTP = "http";
+    private static final String OPTION_FILE= "file";
+    private static final String OPTION_DB= "db";
 
     /**
      * Starts the proxy from the command line.
@@ -62,6 +71,9 @@ public class Launcher {
         options.addOption(null, OPTION_HELP, false,
                 "Display command line help.");
         options.addOption(null, OPTION_MITM, false, "Run as man in the middle.");
+        options.addOption(null, OPTION_HTTP, false, "Run on the specified HTTP server.");
+        options.addOption(null, OPTION_FILE, false, "Save files on the specified location.");
+        options.addOption(null, OPTION_DB, false, "Save templates in the specified database.");
 
         final CommandLineParser parser = new PosixParser();
         final CommandLine cmd;
@@ -77,10 +89,15 @@ public class Launcher {
                     "Could not parse command line: " + Arrays.asList(args));
             return;
         }
+
         if (cmd.hasOption(OPTION_HELP)) {
             printHelp(options, null);
             return;
         }
+
+        /**
+         * Pick up the specified Port number
+         */
         final int defaultPort = 8080;
         int port;
         if (cmd.hasOption(OPTION_PORT)) {
@@ -95,6 +112,46 @@ public class Launcher {
             port = defaultPort;
         }
 
+        /**
+         * Pick up the specified HTTP server
+         */
+        final String defaultHttpServer = "http://127.0.0.1";
+        final String httpServer;
+        if (cmd.hasOption(OPTION_HTTP)) {
+            httpServer = cmd.getOptionValue(OPTION_HTTP);
+        } else {
+            httpServer = defaultHttpServer;
+        }
+
+        /**
+         * Pick up the specified file location
+         */
+        final String defaultFilePath = ".";
+        final String filePath;
+        if (cmd.hasOption(OPTION_FILE)) {
+            filePath = cmd.getOptionValue(OPTION_FILE);
+        } else {
+            filePath = defaultFilePath;
+        }
+
+        /**
+         * Initialize the database
+         */
+        final String defaultDBPath = "mongodb://127.0.0.1";
+        String dbPath;
+        if (cmd.hasOption(OPTION_DB)) {
+            dbPath = cmd.getOptionValue(OPTION_DB);
+        } else {
+            dbPath = defaultDBPath;
+        }
+        MongoClientURI dbURI = new MongoClientURI(dbPath);
+        MongoClient dbClient = new MongoClient(dbURI);
+        MongoDatabase db = dbClient.getDatabase("CSP");
+        final PageJsonColl pageJsonColl = new PageJsonColl(db);
+
+        /**
+         * Create instance for the proxy with specific parameters
+         */
         System.out.println("About to start server on port: " + port);
         HttpProxyServerBootstrap bootstrap = DefaultHttpProxyServer
                 .bootstrapFromFile("./littleproxy.properties")
@@ -116,7 +173,6 @@ public class Launcher {
 
                             @Override
                             public HttpResponse requestPost(HttpObject httpObject) {
-                                // TODO: implement your filtering here
                                 return null;
                             }
 
@@ -144,12 +200,30 @@ public class Launcher {
                                     String response = ((HttpContent) httpObject).content().toString(CharsetUtil.UTF_8);
                                     ByteBuf newHTML = buffer(1024);
 
-                                    CSPApplier csp = new CSPApplier(response, url, filePath, httpPath, true);
-                                    csp.analyzeJson();
-                                    String newDoc = csp.generateHTML();
-                                    newHTML.writeBytes(newDoc.getBytes());
-                                    ((HttpContent) httpObject).content().clear().writeBytes(newHTML);
-                                    ((FullHttpResponse) httpObject).headers().set("Content-Length", newDoc.length());
+                                    try {
+                                        CSPApplier csp = new CSPApplier(response, url, filePath, httpServer,
+                                                                        true, pageJsonColl);
+                                        csp.analyzeJson();
+
+                                        csp.generateJS();
+                                        csp.generateCSS();
+
+                                        String newDoc = csp.generateHTML();
+                                        newHTML.writeBytes(newDoc.getBytes());
+                                        ((HttpContent) httpObject).content().clear().writeBytes(newHTML);
+                                        ((FullHttpResponse) httpObject).headers().set("Content-Length", newDoc.length());
+                                    }
+                                    catch(IOException e) {
+                                        System.out.println("Cannot write new files to the specified location!\n");
+                                        e.printStackTrace();
+                                        return httpObject;
+                                    }
+                                    catch(NoSuchAlgorithmException e) {
+                                        System.out.println("SHA1 encryption is not supported in the machine!\n");
+                                        e.printStackTrace();
+                                        return httpObject;
+                                    }
+
                                 }
                                 return httpObject;
                             }

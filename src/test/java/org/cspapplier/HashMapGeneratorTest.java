@@ -1,8 +1,11 @@
 package org.cspapplier;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -20,7 +23,11 @@ public class HashMapGeneratorTest {
     public void initialize() throws IOException, NoSuchAlgorithmException {
         String fileName = "src/test/resources/index.html";
         String url = "www.test.com";
-        this.getURL = new URLContentAnalyzer(fileName, url);
+
+        File html = new File(fileName);
+        Document doc = Jsoup.parse(html, "UTF-8");
+
+        this.getURL = new URLContentAnalyzer(doc.toString(), url);
         getURL.generateJSElements();
         getURL.generateCSSElements();
 

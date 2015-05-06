@@ -32,7 +32,7 @@ public class URLContentGenerator {
 
     public URLContentGenerator(URLContentAnalyzer urlContentAnalyzer,
                                HashMapGenerator hashMapGenerator,
-                               String httpPath, String filePath) throws IOException {
+                               String httpPath, String filePath) {
         this.urlContentAnalyzer = urlContentAnalyzer;
         this.hashMapGenerator = hashMapGenerator;
         this.httpPath = generateCompletePath(httpPath);
@@ -134,7 +134,7 @@ public class URLContentGenerator {
         }
     }
 
-    public String generateHTML() throws IOException {
+    public String generateHTML() {
         String srcName = httpPath + urlContentAnalyzer.getHashURL();
         Document doc = urlContentAnalyzer.getInputDOM();
 

@@ -2,9 +2,12 @@ package org.cspapplier.json;
 
 import org.cspapplier.HashMapGenerator;
 import org.cspapplier.URLContentAnalyzer;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -21,7 +24,10 @@ public class HashMapInJsonTest {
         String fileName = "src/test/resources/index.html";
         String url = "www.test.com";
 
-        URLContentAnalyzer getURL = new URLContentAnalyzer(fileName, url);
+        File html = new File(fileName);
+        Document doc = Jsoup.parse(html, "UTF-8");
+
+        URLContentAnalyzer getURL = new URLContentAnalyzer(doc.toString(), url);
         getURL.generateJSElements();
         getURL.generateCSSElements();
 

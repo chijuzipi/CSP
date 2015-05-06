@@ -1,8 +1,11 @@
 package org.cspapplier;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashSet;
@@ -21,7 +24,10 @@ public class URLContentGeneratorTest {
         String filePath = "src/test/resources/";
         String httpPath = "http://127.0.0.1";
 
-        URLContentAnalyzer getURL = new URLContentAnalyzer(fileName, url);
+        File html = new File(fileName);
+        Document doc = Jsoup.parse(html, "UTF-8");
+
+        URLContentAnalyzer getURL = new URLContentAnalyzer(doc.toString(), url);
         getURL.generateJSElements();
         getURL.generateCSSElements();
 

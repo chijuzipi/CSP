@@ -4,6 +4,9 @@ import org.cspapplier.json.HashMapInJson;
 import org.cspapplier.json.JsonAnalyzer;
 import org.cspapplier.mongo.PageJsonColl;
 
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+
 /**
  *  CSPApplier.java
  *
@@ -30,10 +33,12 @@ public class CSPApplier {
     private HashMapGenerator elementHashMap;
     private HashMapInJson jsonFromRequest;
 
+    private PageJsonColl pageJsonColl;
+
     private boolean isSample;
 
     public CSPApplier(String inputHTML, String url, String filePath,
-                      String httpPath, boolean isSample) throws Exception {
+                      String httpPath, boolean isSample, PageJsonColl PageJsonColl) throws NoSuchAlgorithmException {
         /**
          *  Query the elements with external / block / inline JS
          */
@@ -44,12 +49,14 @@ public class CSPApplier {
         elementHashMap = new HashMapGenerator();
         jsonFromRequest = new HashMapInJson();
 
+        this.pageJsonColl = PageJsonColl;
+
         this.httpPath = httpPath;
         this.filePath = filePath;
         this.isSample = isSample;
     }
 
-    public void analyzeJson() throws Exception {
+    public void analyzeJson() throws NoSuchAlgorithmException {
         /**
          * Generate HashMaps for external / block / inline JS
          * - Key: the SHA1 hash of the JS content
@@ -69,28 +76,23 @@ public class CSPApplier {
         /**
          * Generate JSON template
          */
-        if (JsonAnalyzer.isLocalJsonExist(getURL.getHashURL(), PageJsonColl)) {
+        if (JsonAnalyzer.isLocalJsonExist(getURL.getHashURL(), pageJsonColl)) {
             System.out.println("Local template already exist!");
-            HashMapInJson jsonFromLocal = JsonAnalyzer.jsonFromFile(getURL.getHashURL(), PageJsonColl);
+            HashMapInJson jsonFromLocal = JsonAnalyzer.jsonFromLocal(getURL.getHashURL(), pageJsonColl);
             JsonAnalyzer jsonAnalyzer = new JsonAnalyzer(jsonFromRequest, jsonFromLocal);
 
             /**
              *  Update the local json and filter the elements in the hashmaps
              */
             if (!jsonAnalyzer.isEmpty()) {
-                jsonAnalyzer.updateLocalJson(jsonFromLocal, isSample);
-                JsonWriter jsonWriter = new JsonWriter(jsonFromLocal, getURL.getHashURL(), filePath);
-                jsonWriter.write();
-
-                jsonAnalyzer.updateLocalJson(jsonFromLocal, isSample, hashURL, PageJsonColl);
+                jsonAnalyzer.updateLocalJson(jsonFromLocal, isSample, getURL.getHashURL(), pageJsonColl);
 
                 jsonAnalyzer.filterHashMap(elementHashMap);
             }
 
         } else {
             System.out.println("Local template does not exist! Generating new template...");
-
-            JsonAnalyzer.insertNewJson(getURL.getHashURL(), PageJsonColl, jsonFromRequest);
+            JsonAnalyzer.insertNewJson(getURL.getHashURL(), pageJsonColl, jsonFromRequest);
         }
 
         /**
@@ -102,21 +104,21 @@ public class CSPApplier {
     /**
      * Generate new HTML and pass to the proxy
      */
-    public String generateHTML() throws Exception {
+    public String generateHTML() {
         return htmlGen.generateHTML();
     }
 
     /**
      * Write new JS to file
      */
-    public void generateJS() throws Exception {
+    public void generateJS() throws IOException, NoSuchAlgorithmException {
         htmlGen.generateJS();
     }
 
     /**
      * Write new CSS to file
      */
-    public void generateCSS() throws Exception {
+    public void generateCSS() throws IOException, NoSuchAlgorithmException {
         htmlGen.generateCSS();
     }
 

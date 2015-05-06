@@ -3,9 +3,12 @@ package org.cspapplier.json;
 import org.cspapplier.HashMapGenerator;
 import org.cspapplier.URLContentAnalyzer;
 
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,7 +20,6 @@ import static org.junit.Assert.assertEquals;
 
 public class JsonAnalyzerTest {
 
-
     private URLContentAnalyzer getURL;
     private HashMapGenerator hashMap;
     private JsonAnalyzer jsonAnalyzer;
@@ -28,7 +30,11 @@ public class JsonAnalyzerTest {
         String path = "src/test/resources/";
         String fileName = path + "index.html";
         String url = "www.test.com";
-        getURL = new URLContentAnalyzer(fileName, url);
+
+        File html = new File(fileName);
+        Document doc = Jsoup.parse(html, "UTF-8");
+
+        getURL = new URLContentAnalyzer(doc.toString(), url);
         getURL.generateJSElements();
         getURL.generateCSSElements();
 
@@ -39,7 +45,7 @@ public class JsonAnalyzerTest {
         HashMapInJson hashMapInJson = new HashMapInJson();
         hashMapInJson.convertJS(this.hashMap);
         hashMapInJson.convertCSS(this.hashMap);
-        localJson = JsonAnalyzer.jsonFromFile(getURL.getHashURL() + ".modified", getURL.getOutputPath());
+        localJson = JsonAnalyzer.jsonFromLocal(getURL.getHashURL() + ".modified", getURL.getOutputPath());
         this.jsonAnalyzer = new JsonAnalyzer(hashMapInJson, localJson);
     }
 
@@ -52,8 +58,8 @@ public class JsonAnalyzerTest {
     }
 
     @Test
-    public void testJsonFromFile() throws IOException {
-        HashMapInJson localJson = JsonAnalyzer.jsonFromFile(getURL.getHashURL() + ".modified", getURL.getOutputPath());
+    public void testJsonFromLocal() throws IOException {
+        HashMapInJson localJson = JsonAnalyzer.jsonFromLocal(getURL.getHashURL() + ".modified", getURL.getOutputPath());
         assertEquals(15, localJson.getJs().size());
         assertEquals(4, localJson.getCss().size());
     }
