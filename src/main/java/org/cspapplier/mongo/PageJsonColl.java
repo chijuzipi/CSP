@@ -24,11 +24,10 @@ public class PageJsonColl extends CSPCollection{
 		String date = CSPMongoDriver.getDate();
 
 		//wrap the document with date and hashKey;
-		Document docInsert = new Document("URLHash", key).
-										append("content", doc).
-										append("date", date);
+		Document docInsert = new Document("URLHash", key)
+				 .append("content", doc)
+				 .append("date", date);
 		pageJson.insertOne(docInsert);
-
 	}
 	
 	public MongoCollection getCollection(){
