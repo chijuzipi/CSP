@@ -51,10 +51,8 @@ public class PageJsonColl extends CSPCollection{
 		//REF: http://stackoverflow.com/questions/7713753/mongodb-merging-two-dbobjects
 		DBObject newContentCss = new BasicDBObject(localJson.getCss());
 
-		System.out.println(newContentCss.keySet().size());
 		//combine the existing record with the js black list
 		DBObject newContentJs = new BasicDBObject(localJson.getJs());
-		System.out.println(newContentJs.keySet().size());
 
 
 		BasicDBObject newContent = new BasicDBObject().append("js", newContentJs).append("css", newContentCss);

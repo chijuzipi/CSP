@@ -11,6 +11,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.File;
@@ -18,6 +19,7 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -28,23 +30,27 @@ import static org.junit.Assert.assertEquals;
 
 public class JsonAnalyzerTest {
 
-    private MongoDatabase db;
+    private static MongoDatabase db;
     private PageJsonColl pageJsonColl;
     private URLContentAnalyzer getURL;
     private HashMapGenerator hashMap;
     private HashMapInJson currentJson;
 
-    @Before
-    public void initialize() throws Exception {
-        String path = "src/test/resources/";
-        String fileName = path + "index.html";
-        String url = "www.test.com";
+    @BeforeClass
+    public static void setupDB() {
         /**
          * Initialize the database
          */
         MongoClientURI dbURI = new MongoClientURI("mongodb://127.0.0.1:27017");
         MongoClient dbClient = new MongoClient(dbURI);
         db = dbClient.getDatabase("test");
+    }
+
+    @Before
+    public void initialize() throws IOException, NoSuchAlgorithmException {
+        String path = "src/test/resources/";
+        String fileName = path + "index.html";
+        String url = "www.test.com";
 
         pageJsonColl = new PageJsonColl(db);
 
@@ -55,13 +61,13 @@ public class JsonAnalyzerTest {
         getURL.generateJSElements();
         getURL.generateCSSElements();
 
-        this.hashMap = new HashMapGenerator();
-        this.hashMap.generateJSElementHashMap(getURL);
-        this.hashMap.generateCSSElementHashMap(getURL);
+        hashMap = new HashMapGenerator();
+        hashMap.generateJSElementHashMap(getURL);
+        hashMap.generateCSSElementHashMap(getURL);
 
-        this.currentJson = new HashMapInJson();
-        this.currentJson.convertJS(this.hashMap);
-        this.currentJson.convertCSS(this.hashMap);
+        currentJson = new HashMapInJson();
+        currentJson.convertJS(hashMap);
+        currentJson.convertCSS(hashMap);
 
         String jsonFilePath = path + getURL.getHashURL() + ".modified.json";
         byte[] encoded = Files.readAllBytes(Paths.get(jsonFilePath));
@@ -78,7 +84,6 @@ public class JsonAnalyzerTest {
 
     @Test
     public void testJsonFromLocal() throws IOException {
-        // read from database
         HashMapInJson localJson = JsonAnalyzer.jsonFromLocal(getURL.getHashURL(), pageJsonColl);
         assertEquals(15, localJson.getJs().size());
         assertEquals(4, localJson.getCss().size());
@@ -92,7 +97,7 @@ public class JsonAnalyzerTest {
         HashMap<String, ArrayList<ElementInJson>> blackList = jsonAnalyzer.getJsComparisonResult().getBlackList();
         HashMap<String, DiffList> warningList = jsonAnalyzer.getJsComparisonResult().getWarningList();
 
-        assertEquals(7, blackList.size());
+        assertEquals(1, blackList.size());
         assertTrue(blackList.keySet().contains("aac7b7bc5c401fa96fd1c403bfcd257e5c5b900b"));
 
         assertEquals(2, warningList.size());
@@ -121,7 +126,7 @@ public class JsonAnalyzerTest {
         HashMap<String, ArrayList<ElementInJson>> blackList = jsonAnalyzer.getCssComparisonResult().getBlackList();
         HashMap<String, DiffList> warningList = jsonAnalyzer.getCssComparisonResult().getWarningList();
 
-        assertEquals(2, blackList.size());
+        assertEquals(1, blackList.size());
         assertTrue(blackList.keySet().contains("a090361fcef19a9ac19e96fa40083a1a89182621"));
 
         assertEquals(1, warningList.size());
