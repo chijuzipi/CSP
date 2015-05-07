@@ -5,13 +5,9 @@ import com.mongodb.util.JSON;
 
 import static com.mongodb.client.model.Filters.*;
 
-import com.mongodb.BasicDBObject;
-import com.mongodb.client.FindIterable;
 import org.bson.Document;
 
 import org.cspapplier.HashMapGenerator;
-
-import java.io.IOException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -93,7 +89,10 @@ public class JsonAnalyzer {
             localJson.getCss().get(id).addAll(cssWarningList.get(id).getMissList());
         }
 
-        if(isSampling) {
+        /**
+         * If sampling mode is ON, add the blacklist element list to the local json
+         */
+        if (isSampling) {
             HashMap<String, ArrayList<ElementInJson>> jsBlackList = jsComparisonResult.getBlackList();
             for (String id : jsBlackList.keySet()) {
                 localJson.getJs().put(id, jsBlackList.get(id));
@@ -118,15 +117,6 @@ public class JsonAnalyzer {
     public static void insertNewJson(String hashURL, PageJsonColl pageJson, HashMapInJson jsonFromRequest){
         pageJson.insert(hashURL, jsonFromRequest.toString());
     }
-
-    /*
-    public void updateDBJson(String hashURL, PageJsonColl pageJson, HashMapInJson newJson){
-        pageJson.getCollection()
-            .updateOne(eq("URLHash", hashURL),
-                    {"$set", new Document("URLHash", newJson)),
-                    {multi:false});
-    }
-    */
 
 
     public static HashMapInJson jsonFromLocal(String hashURL, PageJsonColl pageJson) {

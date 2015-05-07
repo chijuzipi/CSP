@@ -3,7 +3,6 @@ package org.cspapplier.json;
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
 import com.mongodb.client.MongoDatabase;
-import com.mongodb.util.JSON;
 import org.cspapplier.HashMapGenerator;
 import org.cspapplier.URLContentAnalyzer;
 
@@ -45,7 +44,8 @@ public class JsonAnalyzerTest {
          */
         MongoClientURI dbURI = new MongoClientURI("mongodb://127.0.0.1:27017");
         MongoClient dbClient = new MongoClient(dbURI);
-        db = dbClient.getDatabase("test_csp");
+        db = dbClient.getDatabase("test");
+
         pageJsonColl = new PageJsonColl(db);
 
         File html = new File(fileName);
@@ -80,8 +80,6 @@ public class JsonAnalyzerTest {
     public void testJsonFromLocal() throws IOException {
         // read from database
         HashMapInJson localJson = JsonAnalyzer.jsonFromLocal(getURL.getHashURL(), pageJsonColl);
-
-
         assertEquals(15, localJson.getJs().size());
         assertEquals(4, localJson.getCss().size());
     }
@@ -89,8 +87,6 @@ public class JsonAnalyzerTest {
     @Test
     public void testGetJSComparisonResult() {
         HashMapInJson localJson = JsonAnalyzer.jsonFromLocal(getURL.getHashURL(), pageJsonColl);
-        //System.out.println(localJson.getJs().keySet());
-        //System.out.println(currentJson.getJs().keySet());
         JsonAnalyzer jsonAnalyzer = new JsonAnalyzer(currentJson, localJson);
 
         HashMap<String, ArrayList<ElementInJson>> blackList = jsonAnalyzer.getJsComparisonResult().getBlackList();
@@ -147,9 +143,6 @@ public class JsonAnalyzerTest {
     public void testUpdateLocalJson() {
         HashMapInJson localJson = JsonAnalyzer.jsonFromLocal(getURL.getHashURL(), pageJsonColl);
         JsonAnalyzer jsonAnalyzer = new JsonAnalyzer(currentJson, localJson);
-
-        System.out.println();
-
 
         jsonAnalyzer.updateLocalJson(localJson, false, getURL.getHashURL(), pageJsonColl);
 
