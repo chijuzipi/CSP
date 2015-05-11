@@ -86,7 +86,6 @@ public class CSPApplier {
              */
             if (!jsonAnalyzer.isEmpty()) {
                 jsonAnalyzer.updateLocalJson(jsonFromLocal, isSample, getURL.getHashURL(), pageJsonColl);
-
                 jsonAnalyzer.filterHashMap(elementHashMap);
             }
 

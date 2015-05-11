@@ -74,4 +74,11 @@ public class URLContentAnalyzerTest {
         assertEquals(3, getURL.getInlineCSSElements().size());
     }
 
+    @Test
+    public void testSplitURL() {
+        String URL = "http://abc.com/search?keywords=abc+cdf";
+        String newURL = getURL.splitURL(URL);
+        assertEquals("http://abc.com/search", newURL);
+    }
+
 }

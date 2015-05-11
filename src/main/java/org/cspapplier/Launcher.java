@@ -115,7 +115,7 @@ public class Launcher {
         /**
          * Pick up the specified HTTP server
          */
-        final String defaultHttpServer = "http://127.0.0.1";
+        final String defaultHttpServer = "http://127.0.0.1:21029";
         final String httpServer;
         if (cmd.hasOption(OPTION_HTTP)) {
             httpServer = cmd.getOptionValue(OPTION_HTTP);
@@ -126,7 +126,7 @@ public class Launcher {
         /**
          * Pick up the specified file location
          */
-        final String defaultFilePath = ".";
+        final String defaultFilePath = "target";
         final String filePath;
         if (cmd.hasOption(OPTION_FILE)) {
             filePath = cmd.getOptionValue(OPTION_FILE);
@@ -137,7 +137,7 @@ public class Launcher {
         /**
          * Initialize the database
          */
-        final String defaultDBPath = "mongodb://127.0.0.1";
+        final String defaultDBPath = "mongodb://127.0.0.1:27017";
         String dbPath;
         if (cmd.hasOption(OPTION_DB)) {
             dbPath = cmd.getOptionValue(OPTION_DB);

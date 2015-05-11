@@ -54,10 +54,10 @@ public class JsonAnalyzerTest {
 
         pageJsonColl = new PageJsonColl(db);
 
-        File html = new File(fileName);
-        Document doc = Jsoup.parse(html, "UTF-8");
+        byte[] encodeFile = Files.readAllBytes(Paths.get(fileName));
+        String html = new String(encodeFile, Charset.forName("UTF-8"));
 
-        getURL = new URLContentAnalyzer(doc.toString(), url);
+        getURL = new URLContentAnalyzer(html, url);
         getURL.generateJSElements();
         getURL.generateCSSElements();
 

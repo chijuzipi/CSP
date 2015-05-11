@@ -62,7 +62,9 @@ public class URLContentGenerator {
 
     private void generateBlockJS(BufferedWriter bufferJS) throws IOException {
         for (String jsID : hashMapGenerator.getBlockJSMap().keySet()) {
+            bufferJS.write("\r\n");
             bufferJS.write(hashMapGenerator.getBlockJSMap().get(jsID).get(0).data());
+            bufferJS.write("\r\n");
         }
     }
     
@@ -159,7 +161,7 @@ public class URLContentGenerator {
         }
         
         // Add external JS file to html
-        doc.head().appendElement("script").attr("src", srcName + ".js");
+        doc.body().appendElement("script").attr("src", srcName + ".js");
         
         // Add external CSS file to html
         doc.head().appendElement("link").attr("rel", "stylesheet")

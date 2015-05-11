@@ -29,7 +29,7 @@ public class URLContentAnalyzer
         inlineJSElementEvents = new ArrayList<ElementEventBinder>();
 
         // Parse the DOM structure of the input URL content
-        this.hashURL = SHAHash.getHashCode(url);
+        this.hashURL = SHAHash.getHashCode(splitURL(url));
         this.inputDOM = Jsoup.parse(content, "UTF-8");
     }
 
@@ -90,7 +90,19 @@ public class URLContentAnalyzer
         this.inlineCSSElements = inputDOM.select("[style]");
     }
 
-    // Getters & Setters
+    /**
+     * Split the input URL from "?" and reserve the first part
+     * @param url
+     *     The input URL
+     * @return String
+     */
+    public String splitURL(String url) {
+        return url.split("\\?")[0];
+    }
+
+    /**
+     * Getters & Setters
+     */
     public Document getInputDOM() {
         return inputDOM;
     }
