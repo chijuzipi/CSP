@@ -50,25 +50,34 @@ public class URLContentGenerator {
      * @throws NoSuchAlgorithmException
      */
     public void generateJS() throws IOException, NoSuchAlgorithmException {
-        String fileName = filePath + urlContentAnalyzer.getHashURL();
-        File outputJS= new File(fileName + ".js");
-        BufferedWriter bufferJS = new BufferedWriter(new FileWriter(outputJS));
+        String path = filePath + urlContentAnalyzer.getHashURL() + "/";
+        String fileName = urlContentAnalyzer.getHashURL();
 
-        generateBlockJS(bufferJS);
-        generateInlineJS(bufferJS);
+        File directory = new File(path);
+        if (!directory.exists())
+            directory.mkdirs();
 
-        bufferJS.close();
+        generateBlockJS(path, fileName);
+        generateInlineJS(path, fileName + "_inline");
+
     }
 
-    private void generateBlockJS(BufferedWriter bufferJS) throws IOException {
+    private void generateBlockJS(String path, String fileName) throws IOException {
         for (String jsID : hashMapGenerator.getBlockJSMap().keySet()) {
+            File outputJS= new File(path + fileName + "_" + jsID + ".js");
+            BufferedWriter bufferJS = new BufferedWriter(new FileWriter(outputJS));
+
             bufferJS.write("\r\n");
             bufferJS.write(hashMapGenerator.getBlockJSMap().get(jsID).get(0).data());
             bufferJS.write("\r\n");
+            bufferJS.close();
         }
     }
     
-    private void generateInlineJS(BufferedWriter bufferJS) throws IOException, NoSuchAlgorithmException {
+    private void generateInlineJS(String path, String fileName) throws IOException {
+        File outputJS= new File(path + fileName + ".js");
+        BufferedWriter bufferJS = new BufferedWriter(new FileWriter(outputJS));
+
         // Write the document ready part
         bufferJS.write("\r\n");
         bufferJS.write("document.addEventListener('DOMContentLoaded', function () {");
@@ -102,8 +111,14 @@ public class URLContentGenerator {
     }
 
     public void generateCSS() throws IOException, NoSuchAlgorithmException {
-        String fileName = filePath + urlContentAnalyzer.getHashURL();
-        File outputCSS = new File(fileName + ".css");
+        String path = filePath + urlContentAnalyzer.getHashURL() + "/";
+        String fileName = urlContentAnalyzer.getHashURL();
+
+        File directory = new File(path);
+        if (!directory.exists())
+            directory.mkdirs();
+
+        File outputCSS = new File(path + fileName + ".css");
         BufferedWriter bufferCSS = new BufferedWriter(new FileWriter(outputCSS));
 
         generateBlockCSS(bufferCSS);
@@ -137,18 +152,22 @@ public class URLContentGenerator {
     }
 
     public String generateHTML() {
-        String srcName = httpPath + urlContentAnalyzer.getHashURL();
+        String path = httpPath + urlContentAnalyzer.getHashURL() + "/";
+        String srcName = urlContentAnalyzer.getHashURL();
         Document doc = urlContentAnalyzer.getInputDOM();
 
         // Remove block JS
         for (Element element : urlContentAnalyzer.getBlockJSElements()){
+            String identity = SHAHash.getHashCode("blockJS" + element.data());
+            element.after("<script type=text/javascript src=" +
+                    path + srcName + "_" + identity + ".js></script>");
             element.remove();
         }
         
         // Remove inline JS
         for (ElementEventBinder elementEvent : urlContentAnalyzer.getInlineJSElementEvents()){
             elementEvent.getElement().removeAttr(elementEvent.getEvent());
-        }    
+        }
 
         // Remove block CSS
         for (Element element : urlContentAnalyzer.getBlockCSSElements()){
@@ -161,11 +180,11 @@ public class URLContentGenerator {
         }
         
         // Add external JS file to html
-        doc.body().appendElement("script").attr("src", srcName + ".js");
+        doc.body().appendElement("script").attr("src", path + srcName + "_inline.js");
         
         // Add external CSS file to html
         doc.head().appendElement("link").attr("rel", "stylesheet")
-                  .attr("type", "text/css").attr("href", srcName + ".css");
+                  .attr("type", "text/css").attr("href", path + srcName + ".css");
 
         /**
          * Output the HTML to string for proxy to handle
@@ -173,7 +192,7 @@ public class URLContentGenerator {
         return doc.toString();
     }
 
-    public String generateElementID() throws NoSuchAlgorithmException {
+    public String generateElementID() {
         double randomNumber = randomGenerator.nextDouble();
         return SHAHash.getHashCode(String.valueOf(randomNumber));
     }
