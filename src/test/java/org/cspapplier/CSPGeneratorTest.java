@@ -19,6 +19,7 @@ public class CSPGeneratorTest {
         String filePath = "src/test/resources/";
         String fileName = filePath + "index.html";
         String url = "www.test.com";
+        String httpPath = "http://127.0.0.1:21029";
 
         File html = new File(fileName);
         Document doc = Jsoup.parse(html, "UTF-8");
@@ -27,7 +28,7 @@ public class CSPGeneratorTest {
         this.urlContent.generateJSElements();
         this.urlContent.generateCSSElements();
 
-        this.CSPGen = new CSPGenerator(this.urlContent);
+        this.CSPGen = new CSPGenerator(this.urlContent, httpPath);
     }
 
     @Test

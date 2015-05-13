@@ -8,40 +8,46 @@ package org.cspapplier;
  */
 
 import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
 
 public class CSPGenerator {
+    private String httpPath;
 	private String CSPHeader;
 	private URLContentAnalyzer URLContent;
 
-    public CSPGenerator(URLContentAnalyzer getURL)
+    public CSPGenerator(URLContentAnalyzer getURL, String httpPath)
     {
     	this.URLContent = getURL;
-        this.CSPHeader = "Content-Security-Policy: default-src 'self'; script-src 'self' ";
+        this.CSPHeader = "Content-Security-Policy: script-src 'self' ";
+        this.httpPath = URLContentGenerator.generateCompletePath(httpPath);
     }
 
     public void generateCSPHeader(){
+        /**
+         * JS Part
+         */
         for (Element y : URLContent.getExternalJSElements())
         {
-            CSPHeader = CSPHeader + y.attr("src") + " ";
+            String srcURL = y.attr("src");
+            if (srcURL.startsWith("//"))
+                srcURL = "http:" + srcURL;
+            CSPHeader = CSPHeader + srcURL + " ";
         }
+        CSPHeader += httpPath + " ";
+        CSPHeader += "'unsafe-eval'; ";
 
-        CSPHeader = CSPHeader + URLContent.getHashURL() + ".js ";
-        // Delete the last space
-        CSPHeader = CSPHeader.substring(0, CSPHeader.length() - 1);
-        CSPHeader = CSPHeader + "; ";
+        /**
+         * CSS Part
+         */
         CSPHeader = CSPHeader + "style-src 'self' ";
-        for (Element x : URLContent.getExternalCSSElements())
+        for (Element y : URLContent.getExternalCSSElements())
         {
-            CSPHeader = CSPHeader + x.attr("href") + " ";
+            String srcURL = y.attr("href");
+            if (srcURL.startsWith("//"))
+                srcURL = "http:" + srcURL;
+            CSPHeader = CSPHeader + srcURL + " ";
         }
-        CSPHeader = CSPHeader.substring(0, CSPHeader.length() - 1);
-        CSPHeader = CSPHeader + "; ";
+        CSPHeader += httpPath + " ";
+        CSPHeader += "'unsafe-inline'";
     }
 
     public String getCSPHeader() {

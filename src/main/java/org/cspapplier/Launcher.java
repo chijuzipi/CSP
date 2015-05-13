@@ -202,16 +202,19 @@ public class Launcher {
 
                                     try {
                                         CSPApplier csp = new CSPApplier(response, url, filePath, httpServer,
-                                                                        true, pageJsonColl);
+                                                                        false, pageJsonColl);
                                         csp.analyzeJson();
 
                                         csp.generateJS();
                                         csp.generateCSS();
+                                        csp.generateReport();
 
                                         String newDoc = csp.generateHTML();
                                         newHTML.writeBytes(newDoc.getBytes());
                                         ((HttpContent) httpObject).content().clear().writeBytes(newHTML);
                                         ((FullHttpResponse) httpObject).headers().set("Content-Length", newDoc.length());
+                                        ((FullHttpResponse) httpObject).headers().set("Content-Security-Policy",
+                                                csp.generateCSP());
                                     }
                                     catch(IOException e) {
                                         System.out.println("Cannot write new files to the specified location!\n");

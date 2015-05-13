@@ -114,9 +114,9 @@ public class JsonAnalyzer {
         return (myDoc != null);
     }
 
-    public static void insertNewJson(String hashURL, PageJsonColl pageJson, HashMapInJson jsonFromRequest) {
+    public static void insertNewJson(String hashURL, String URL, PageJsonColl pageJson, HashMapInJson jsonFromRequest) {
         Gson gson = new Gson();
-        pageJson.insert(hashURL, gson.toJson(jsonFromRequest));
+        pageJson.insert(hashURL, URL, gson.toJson(jsonFromRequest));
     }
 
 

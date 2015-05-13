@@ -72,7 +72,7 @@ public class JsonAnalyzerTest {
         String jsonFilePath = path + getURL.getHashURL() + ".modified.json";
         byte[] encoded = Files.readAllBytes(Paths.get(jsonFilePath));
         String jsonString = new String(encoded, Charset.defaultCharset());
-        pageJsonColl.insert(getURL.getHashURL(), jsonString);
+        pageJsonColl.insert(getURL.getHashURL(), getURL.getURL(), jsonString);
     }
 
 

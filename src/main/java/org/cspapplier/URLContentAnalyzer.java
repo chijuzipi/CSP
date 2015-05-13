@@ -16,6 +16,7 @@ public class URLContentAnalyzer
 {
     private Document inputDOM;
     private String hashURL;
+    private String URL;
 
     private Elements externalJSElements;
     private Elements blockJSElements;
@@ -29,8 +30,9 @@ public class URLContentAnalyzer
         inlineJSElementEvents = new ArrayList<ElementEventBinder>();
 
         // Parse the DOM structure of the input URL content
-        this.hashURL = SHAHash.getHashCode(splitURL(url));
+        this.hashURL  = SHAHash.getHashCode(splitURL(url));
         this.inputDOM = Jsoup.parse(content, "UTF-8");
+        this.URL      = url;
     }
 
     public void generateJSElements() {
@@ -132,6 +134,10 @@ public class URLContentAnalyzer
 
     public String getHashURL() {
         return hashURL;
+    }
+
+    public String getURL() {
+        return URL;
     }
 
     public void setHashURL(String hashURL) {

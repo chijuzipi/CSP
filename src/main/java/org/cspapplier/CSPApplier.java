@@ -1,6 +1,7 @@
 package org.cspapplier;
 
 import org.cspapplier.json.HashMapInJson;
+
 import org.cspapplier.json.JsonAnalyzer;
 import org.cspapplier.mongo.PageJsonColl;
 
@@ -29,6 +30,8 @@ public class CSPApplier {
      */
     private URLContentAnalyzer getURL;
     private URLContentGenerator htmlGen;
+
+    private ReportGenerator reportGen;
 
     private HashMapGenerator elementHashMap;
     private HashMapInJson jsonFromRequest;
@@ -87,11 +90,14 @@ public class CSPApplier {
             if (!jsonAnalyzer.isEmpty()) {
                 jsonAnalyzer.updateLocalJson(jsonFromLocal, isSample, getURL.getHashURL(), pageJsonColl);
                 jsonAnalyzer.filterHashMap(elementHashMap);
+                if(!isSample) {
+                    reportGen = new ReportGenerator(filePath, getURL.getHashURL(), jsonAnalyzer);
+                }
             }
 
         } else {
             System.out.println("Local template does not exist! Generating new template...");
-            JsonAnalyzer.insertNewJson(getURL.getHashURL(), pageJsonColl, jsonFromRequest);
+            JsonAnalyzer.insertNewJson(getURL.getHashURL(), getURL.getURL(), pageJsonColl, jsonFromRequest);
         }
 
         /**
@@ -122,10 +128,18 @@ public class CSPApplier {
     }
 
     /**
+     * Write suspicious to log
+     */
+    public void generateReport() throws IOException, NoSuchAlgorithmException {
+        if(reportGen != null)
+            reportGen.generateReport();
+    }
+
+    /**
      * Generate CSP header and pass to proxy
      */
     public String generateCSP() {
-        CSPGenerator cspGen = new CSPGenerator(getURL);
+        CSPGenerator cspGen = new CSPGenerator(getURL, httpPath);
         cspGen.generateCSPHeader();
         return cspGen.getCSPHeader();
     }

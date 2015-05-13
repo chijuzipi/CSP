@@ -23,13 +23,14 @@ public class PageJsonColl extends CSPCollection{
 	}
 	
 	//insert to pageJson collection
-	public void insert(String key, String json){
+	public void insert(String key, String URL, String json){
 		BasicDBObject doc = (BasicDBObject)JSON.parse(json);
 
 		String date = CSPMongoDriver.getDate();
 
 		//wrap the document with date and hashKey;
 		Document docInsert = new Document("URLHash", key)
+				 .append("URLString", URL)
 				 .append("content", doc)
 				 .append("date", date);
 		pageJson.insertOne(docInsert);
