@@ -202,7 +202,7 @@ public class Launcher {
 
                                     try {
                                         CSPApplier csp = new CSPApplier(response, url, filePath, httpServer,
-                                                                        false, pageJsonColl);
+                                                                        true, pageJsonColl);
                                         csp.analyzeJson();
 
                                         csp.generateJS();
